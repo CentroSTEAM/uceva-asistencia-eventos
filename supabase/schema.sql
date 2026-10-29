@@ -91,8 +91,9 @@ returns text language sql immutable as $$
 $$;
 
 -- Código del pase: 10 caracteres sin letras que se confundan (0/O, 1/I/L).
+-- En Supabase, pgcrypto vive en el esquema "extensions"; por eso se incluye en la ruta.
 create or replace function public.generar_token()
-returns text language plpgsql volatile as $$
+returns text language plpgsql volatile set search_path = public, extensions as $$
 declare
   alfabeto constant text := '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
   bytes bytea := gen_random_bytes(10);
