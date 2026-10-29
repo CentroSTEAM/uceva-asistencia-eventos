@@ -277,6 +277,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .creditos__steam img { width: auto; height: 3.1rem; }
 .creditos__steam strong { display: block; font-family: var(--display); font-size: 1.05rem; color: var(--tinta); line-height: 1.1; }
 .creditos__steam small { display: block; font-size: .72rem; letter-spacing: .1em; color: var(--tinta-3); font-weight: 700; }
+.creditos__contacto { font-size: .82rem; color: var(--tinta-2); }
 .creditos__vips small { letter-spacing: .02em; text-transform: none; line-height: 1.25; }
 
 @media (prefers-reduced-motion: reduce) {
