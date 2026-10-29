@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Registra tu asistencia | Noche de la Inclusión UCEVA</title>
+  <meta name="theme-color" content="#ffffff">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/portal.css">
+  <script src="vendor/supabase.js" defer></script>
+  <script type="module" src="js/asistir.js"></script>
+</head>
+<body>
+  <main id="contenido" class="portada asistir">
+    <div class="aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="asistir__dentro">
+      <p class="asistir__evento" id="evento-nombre"></p>
+      <div id="vista" class="asistir__vista" aria-live="polite">
+        <p class="ayuda">Cargando…</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

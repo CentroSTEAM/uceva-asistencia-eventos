@@ -63,6 +63,10 @@ function crearSupabase() {
       p_acepta_tratamiento: d.acepta_tratamiento, p_acepta_datos_sensibles: d.acepta_datos_sensibles,
     }),
 
+    estadoAsistencia: (codigo) => rpc('estado_asistencia', { p_evento: EVENTO, p_codigo: codigo }),
+    registrarAsistencia: (codigo, documento) => rpc('registrar_asistencia', { p_evento: EVENTO, p_codigo: codigo, p_documento: documento }, { timeoutMs: 8000 }),
+    configAsistencia: (abierta = null, renovar = false) => rpc('config_asistencia', { p_evento: EVENTO, p_abierta: abierta, p_renovar: renovar }),
+
     async iniciarSesion(correo, clave) {
       const { error } = await cliente.auth.signInWithPassword({ email: correo, password: clave });
       if (error) throw new ErrorApi('Correo o contraseña incorrectos.');
@@ -169,6 +173,31 @@ function crearDemo() {
       };
       db.personas.push(p); guardar(db);
       return { estado: 'creado', ...pasePublico(p) };
+    },
+
+    async estadoAsistencia(codigo) {
+      await espera(100); const ev = leer().evento || { codigo: 'DEMO2026', abierta: true };
+      return { abierta: ev.abierta, codigo_valido: String(codigo || '').trim().toUpperCase() === ev.codigo, nombre: CONFIG.evento.nombre };
+    },
+    async registrarAsistencia(codigo, documento) {
+      await espera(250);
+      const db = leer(); const ev = db.evento || { codigo: 'DEMO2026', abierta: true };
+      if (String(codigo || '').trim().toUpperCase() !== ev.codigo) return { estado: 'codigo_invalido' };
+      if (!ev.abierta) return { estado: 'cerrado' };
+      const p = db.personas.find((x) => x.documento === normalizarDoc(documento));
+      if (!p) return { estado: 'no_encontrado' };
+      const previo = db.asistencias.find((a) => a.persona_id === p.id);
+      const base = { nombre: nombrePublico(p.nombres, p.apellidos), tipo_asistente: p.tipo_asistente };
+      if (previo) return { estado: 'repetido', ...base, hora: previo.registrado_en };
+      const a = { persona_id: p.id, registrado_en: new Date().toISOString(), punto: 'Celular (autoregistro)', metodo: 'autoregistro', sin_conexion: false };
+      db.asistencias.push(a); guardar(db);
+      return { estado: 'ok', ...base, hora: a.registrado_en };
+    },
+    async configAsistencia(abierta = null, renovar = false) {
+      exigir(true); const db = leer(); db.evento ||= { codigo: 'DEMO2026', abierta: true };
+      if (abierta !== null) db.evento.abierta = abierta;
+      if (renovar) db.evento.codigo = nuevoToken();
+      guardar(db); return { abierta: db.evento.abierta, codigo: db.evento.codigo };
     },
 
     async iniciarSesion(correo, clave) {

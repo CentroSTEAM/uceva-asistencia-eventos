@@ -67,6 +67,14 @@ function svgQR(qr) {
   return `<svg viewBox="0 0 ${n} ${n}" role="img" aria-label="Código QR de tu pase" shape-rendering="crispEdges"><path d="${d}" fill="#0f1a15"/></svg>`;
 }
 
+// QR de cualquier texto (por ejemplo, el enlace del cartel de asistencia).
+export function qrDeTexto(texto) {
+  const qr = window.qrcode(0, 'M'); qr.addData(texto); qr.make(); return qr;
+}
+export function svgDeTexto(texto, etiqueta = 'Código QR') {
+  return svgQR(qrDeTexto(texto)).replace('aria-label="Código QR de tu pase"', `aria-label="${esc(etiqueta)}"`);
+}
+
 const lugarFecha = () => [CONFIG.evento.fecha, CONFIG.evento.lugar].filter(Boolean).join(', ');
 
 export function htmlPase(p) {

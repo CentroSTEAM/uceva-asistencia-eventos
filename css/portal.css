@@ -150,3 +150,34 @@
   .portada__dentro, .registro-pagina { display: block; padding: 0; min-height: 0; }
   .portada__pase .pase-marco { animation: none; }
 }
+
+/* ---------- Autoregistro de asistencia ---------- */
+
+.asistir { min-height: calc(100vh - 4rem); min-height: calc(100dvh - 4rem); border-bottom: 0; }
+.asistir__dentro { position: relative; z-index: 1; max-width: 32rem; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
+.asistir__evento { font-weight: 700; font-size: var(--t-0); color: var(--verde); margin: 0 0 .6rem; }
+.asistir__titulo { font-size: clamp(2.6rem, 11vw, 3.6rem); max-width: 10ch; margin-bottom: 1rem; }
+.asistir__rapido { padding: 1.3rem 1.3rem 1.25rem; margin-top: 1.5rem; }
+.asistir__rapido .ayuda { margin: 0; }
+.asistir__quien { font-family: var(--display); font-weight: 800; font-size: var(--t-4); letter-spacing: -.03em; line-height: 1.05; margin: .25rem 0 .3rem; }
+.asistir__rapido .boton { margin-top: 1.1rem; }
+.asistir__o { margin: 1.6rem 0 0; font-weight: 700; font-size: var(--t-0); color: var(--tinta-2); text-align: center; }
+.asistir__form { margin-top: .8rem; }
+.asistir__estado { text-align: center; padding-top: 1.5rem; }
+.asistir__estado h1 { font-size: clamp(2rem, 8.5vw, 2.8rem); margin: 1.2rem auto .6rem; max-width: 14ch; }
+.asistir__estado p { margin-left: auto; margin-right: auto; color: var(--tinta-2); }
+.asistir__estado .boton { margin-top: 1rem; }
+.asistir__estado .enlace { margin-top: .6rem; }
+.asistir__icono { display: inline-grid; place-items: center; width: 6.5rem; height: 6.5rem; border-radius: 50%; color: var(--blanco); box-shadow: 0 18px 40px -16px rgba(15,26,21,.45); }
+.asistir__icono svg { width: 3.6rem; height: 3.6rem; }
+.asistir__icono--ok    { background: linear-gradient(135deg, var(--e-verde), #06683a); }
+.asistir__icono--aviso, .asistir__icono--cerrado { background: linear-gradient(135deg, #ffc94d, #e8920c); color: #2b1b00; }
+.asistir__icono--error { background: linear-gradient(135deg, #e5483e, #96180f); }
+.asistir__icono--info  { background: linear-gradient(135deg, var(--e-turquesa), var(--e-azul)); }
+.asistir__estado--ok .asistir__icono { animation: confirma .6s var(--suave) both; }
+@keyframes confirma { from { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); } }
+.asistir__confirma { font-size: var(--t-2); color: var(--tinta) !important; }
+.asistir__nombre { display: inline-grid; gap: .1rem; margin: .6rem auto 1.4rem !important; padding: .9rem 1.4rem; border-radius: 20px; background: var(--blanco); box-shadow: var(--sombra-1);
+  font-family: var(--display); font-weight: 800; font-size: var(--t-3); letter-spacing: -.025em; color: var(--tinta) !important; }
+.asistir__nombre span { font-family: var(--fuente); font-weight: 700; font-size: var(--t-0); letter-spacing: 0; color: var(--tinta-2); }
+.enlace { font: inherit; background: none; border: 0; color: var(--verde); text-decoration: underline; text-underline-offset: .18em; cursor: pointer; padding: .5rem .2rem; }

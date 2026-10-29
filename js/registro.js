@@ -21,6 +21,11 @@ $('#btn-descargar').addEventListener('click', () => paseActual && descargarPase(
 $('#btn-imprimir').addEventListener('click', () => window.print());
 
 const docInicial = new URLSearchParams(location.search).get('doc');
+const codigoAsistir = (new URLSearchParams(location.search).get('asistir') || '').trim().toUpperCase();
+const horaCorta = (iso) => new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
+if (codigoAsistir) {
+  $('#btn-registrar').textContent = 'Registrarme y marcar mi asistencia';
+}
 if (docInicial) form.documento.value = docInicial;
 
 window.addEventListener('DOMContentLoaded', () => { contPase.innerHTML = htmlPaseVacio(); });
@@ -104,6 +109,16 @@ form.addEventListener('submit', async (e) => {
   boton.disabled = true; boton.textContent = 'Registrando…';
   try {
     const r = await api.registrarPersona(datos);
+    if (r.estado === 'ya_registrado' && codigoAsistir) {
+      const a = await api.registrarAsistencia(codigoAsistir, datos.documento);
+      if (a.estado === 'ok' || a.estado === 'repetido') {
+        form.hidden = true; $('#entrada').hidden = true; $('#titulo').textContent = 'Asistencia registrada';
+        $('#resultado').innerHTML = mensaje('ok', `¡Bienvenido, ${a.nombre.split(' ')[0]}!`,
+          `Ya estabas en la lista y tu asistencia quedó registrada a las <strong>${horaCorta(a.hora)}</strong>`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
     if (r.estado === 'ya_registrado') {
       errores.innerHTML = mensaje('aviso', 'Ese documento ya está en la lista',
         `No necesitas registrarte otra vez. <a href="index.html?doc=${encodeURIComponent(datos.documento)}">Ver mi pase</a>`);
@@ -111,12 +126,20 @@ form.addEventListener('submit', async (e) => {
       return;
     }
     paseActual = r;
-    guardarUltimoPase(r);
+    guardarUltimoPase({ ...r, documento: datos.documento });
     form.hidden = true;
     contPase.innerHTML = htmlPase(r);
     acciones.hidden = false;
-    $('#resultado').innerHTML = mensaje('ok', `Listo, ${r.nombre.split(' ')[0]}. Ya estás en la lista`,
-      'Descarga tu pase o toma una captura de pantalla y muéstralo en la entrada. También puedes consultarlo cuando quieras con tu documento.');
+    let asistencia = null;
+    if (codigoAsistir) { try { asistencia = await api.registrarAsistencia(codigoAsistir, datos.documento); } catch {} }
+    if (asistencia && (asistencia.estado === 'ok' || asistencia.estado === 'repetido')) {
+      guardarUltimoPase({ ...r, documento: datos.documento, asistio: asistencia.hora });
+      $('#resultado').innerHTML = mensaje('ok', `¡Bienvenido, ${r.nombre.split(' ')[0]}! Tu asistencia quedó registrada`,
+        `Quedaste inscrito y tu asistencia se guardó a las <strong>${horaCorta(asistencia.hora)}</strong> (abajo está tu pase, por si el personal te lo pide).`);
+    } else {
+      $('#resultado').innerHTML = mensaje('ok', `Listo, ${r.nombre.split(' ')[0]}. Ya estás en la lista`,
+        'Descarga tu pase o toma una captura de pantalla. Al llegar al evento, escanea el código QR de la entrada para registrar tu asistencia.');
+    }
     $('#titulo').textContent = 'Registro completo';
     $('#entrada').hidden = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -124,7 +147,7 @@ form.addEventListener('submit', async (e) => {
     errores.innerHTML = mensaje('error', 'No pudimos completar tu registro',
       err.sinConexion ? 'Revisa tu conexión a internet e inténtalo de nuevo. Tus datos siguen en el formulario.' : esc(err.message));
   } finally {
-    boton.disabled = false; boton.textContent = 'Registrarme y obtener mi pase';
+    boton.disabled = false; boton.textContent = codigoAsistir ? 'Registrarme y marcar mi asistencia' : 'Registrarme y obtener mi pase';
   }
 });
 

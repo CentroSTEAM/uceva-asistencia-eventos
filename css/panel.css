@@ -48,3 +48,17 @@ input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; borde
 .barra-fila__pista { height: .75rem; border-radius: 999px; }
 .barra-fila__valor { border-radius: 999px; }
 .flujo__barra { background: linear-gradient(180deg, var(--e-turquesa), var(--verde)); border-radius: 8px 8px 3px 3px; }
+
+/* ---------- Cartel de asistencia ---------- */
+.cartel { display: grid; gap: 1.5rem 2.5rem; grid-template-columns: 1fr; align-items: center; margin-bottom: 1rem; position: relative; overflow: hidden; }
+.cartel::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--espectro); }
+@media (min-width: 900px) { .cartel { grid-template-columns: 1fr 15rem; padding: 1.8rem 2rem; } }
+.cartel h2 { font-size: var(--t-3); }
+.cartel__estado { display: flex; gap: .55rem; align-items: flex-start; padding: .8rem 1rem; border-radius: 14px; background: var(--aviso-fondo); color: var(--aviso); font-size: var(--t-0); max-width: none; }
+.cartel__estado span { color: var(--tinta); }
+.cartel__estado svg { width: 1.3rem; height: 1.3rem; flex: none; }
+.cartel__estado--abierto { background: var(--ok-fondo); color: var(--ok); }
+.cartel__botones { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 .8rem; }
+.cartel__qr { justify-self: center; width: min(15rem, 100%); padding: 1rem; border-radius: 20px; background: var(--blanco); border: 1px solid var(--linea); text-align: center; }
+.cartel__qr svg { width: 100%; height: auto; image-rendering: pixelated; }
+.cartel__codigo { margin: .6rem 0 0 !important; font-weight: 700; letter-spacing: .1em; color: var(--tinta) !important; }

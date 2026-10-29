@@ -3,7 +3,7 @@
 
 import { api, TIPOS } from './api.js';
 import { CONFIG } from './config.js';
-import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js';
+import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js';
 import { exigirSesion, salir } from './sesion.js';
 
 const raiz = $('#contenido');
@@ -25,6 +25,22 @@ raiz.innerHTML = `
     <div class="cifra"><span class="cifra__valor" id="c-15">…</span><span class="cifra__texto">en los últimos 15 minutos</span></div>
     <div class="cifra"><span class="cifra__valor" id="c-base">…</span><span class="cifra__texto">personas en la base</span></div>
     <div class="cifra"><span class="cifra__valor" id="c-externos">…</span><span class="cifra__texto" id="c-externos-texto">registrados en línea</span></div>
+  </section>
+
+  <section class="bloque cartel" aria-labelledby="t-cartel">
+    <div class="cartel__info">
+      <h2 id="t-cartel">Registro de asistencia</h2>
+      <p>Las personas escanean este código en la entrada con su celular y registran su asistencia con su documento. Ábrelo cuando empiece el evento y ciérralo al terminar.</p>
+      <p class="cartel__estado" id="cartel-estado" role="status">…</p>
+      <div class="cartel__botones">
+        <button class="boton boton--verde" type="button" id="btn-abrir" disabled>…</button>
+        <button class="boton boton--claro" type="button" id="btn-cartel" disabled>${ICONOS.descargar} Descargar cartel</button>
+        <button class="boton boton--claro" type="button" id="btn-copiar" disabled>Copiar enlace</button>
+      </div>
+      <p class="ayuda">¿Se filtró el código fuera del evento? <button class="enlace" type="button" id="btn-renovar" disabled>Cambiar código</button>. Los carteles impresos antes dejarán de funcionar.</p>
+      <div id="cartel-msg" aria-live="polite"></div>
+    </div>
+    <div class="cartel__qr" id="cartel-qr"></div>
   </section>
 
   <div class="rejilla">
@@ -246,3 +262,69 @@ $('#btn-exportar').addEventListener('click', async () => {
     $('#exportar-resultado').innerHTML = mensaje('error', 'No se pudo descargar', esc(err.message));
   } finally { btn.disabled = false; }
 });
+
+// ---------------------------------------------------------------------
+//  Cartel de autoregistro de asistencia
+// ---------------------------------------------------------------------
+
+let cartel = null;
+const enlaceAsistir = () => new URL(`asistir.html?c=${encodeURIComponent(cartel.codigo)}`, location.href).href;
+
+function pintarCartel() {
+  const abierto = cartel.abierta;
+  $('#cartel-estado').className = `cartel__estado ${abierto ? 'cartel__estado--abierto' : ''}`;
+  $('#cartel-estado').innerHTML = `${abierto ? ICONOS.ok : ICONOS.aviso}<span><strong>${abierto ? 'Abierto' : 'Cerrado'}.</strong> ${abierto ? 'Quien escanee el código puede registrar su asistencia.' : 'El código funciona, pero todavía no deja registrar asistencia.'}</span>`;
+  $('#btn-abrir').textContent = abierto ? 'Cerrar registro' : 'Abrir registro de asistencia';
+  $('#btn-abrir').classList.toggle('boton--verde', !abierto);
+  $('#btn-abrir').classList.toggle('boton--claro', abierto);
+  $('#cartel-qr').innerHTML = `${svgDeTexto(enlaceAsistir(), 'Código QR para registrar asistencia')}<p class="cartel__codigo">Código ${esc(cartel.codigo)}</p>`;
+  ['#btn-abrir', '#btn-cartel', '#btn-copiar', '#btn-renovar'].forEach((s) => { $(s).disabled = false; });
+}
+
+async function cargarCartel(abierta = null, renovar = false) {
+  try { cartel = await api.configAsistencia(abierta, renovar); pintarCartel(); }
+  catch (err) { $('#cartel-msg').innerHTML = mensaje('error', 'No se pudo cargar el registro de asistencia', esc(err.message)); }
+}
+
+$('#btn-abrir').addEventListener('click', async (e) => { e.currentTarget.disabled = true; await cargarCartel(!cartel.abierta); });
+$('#btn-copiar').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(enlaceAsistir()); $('#cartel-msg').innerHTML = mensaje('ok', 'Enlace copiado'); }
+  catch { $('#cartel-msg').innerHTML = mensaje('info', 'Copia este enlace', esc(enlaceAsistir())); }
+});
+let confirmarRenovar = false;
+$('#btn-renovar').addEventListener('click', async (e) => {
+  if (!confirmarRenovar) { confirmarRenovar = true; e.currentTarget.textContent = '¿Seguro? Toca otra vez para cambiarlo'; return; }
+  confirmarRenovar = false; e.currentTarget.textContent = 'Cambiar código';
+  await cargarCartel(null, true);
+  $('#cartel-msg').innerHTML = mensaje('aviso', 'Código cambiado', 'Descarga e imprime el cartel nuevo.');
+});
+
+$('#btn-cartel').addEventListener('click', async () => {
+  try { await document.fonts?.ready; } catch {}
+  const W = 1240, H = 1754; const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); const css = getComputedStyle(document.documentElement);
+  const col = (v) => css.getPropertyValue(v).trim(); const display = col('--display'), fuente = col('--fuente');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+  const franja = g.createLinearGradient(0, 0, W, 0);
+  ['--e-verde', '--e-turquesa', '--e-azul', '--e-violeta', '--e-magenta', '--e-ambar'].forEach((v, i, a) => franja.addColorStop(i / (a.length - 1), col(v)));
+  g.fillStyle = franja; g.fillRect(0, 0, W, 36); g.fillRect(0, H - 36, W, 36);
+  g.textAlign = 'center'; g.fillStyle = col('--verde'); g.font = `700 40px ${fuente}`;
+  g.fillText(CONFIG.institucion.nombre, W / 2, 150, W - 160);
+  g.fillStyle = col('--tinta'); g.font = `800 112px ${display}`;
+  g.fillText(CONFIG.evento.nombre, W / 2, 290, W - 140);
+  g.font = `800 84px ${display}`; g.fillStyle = col('--verde-hondo');
+  g.fillText('Registra tu asistencia', W / 2, 420, W - 140);
+  const qr = qrDeTexto(enlaceAsistir()); const n = qr.getModuleCount();
+  const celda = Math.floor(820 / n); const lado = celda * n; const x0 = (W - lado) / 2, y0 = 500;
+  g.fillStyle = col('--tinta');
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) g.fillRect(x0 + c * celda, y0 + r * celda, celda, celda);
+  let y = y0 + lado + 110;
+  g.font = `400 44px ${fuente}`; g.fillStyle = col('--tinta');
+  ['Abre la cámara de tu celular y apunta a este código.', 'Escribe tu número de documento y listo.'].forEach((t) => { g.fillText(t, W / 2, y, W - 160); y += 66; });
+  g.font = `400 30px ${fuente}`; g.fillStyle = col('--tinta-2');
+  g.fillText(`Código ${cartel.codigo}`, W / 2, H - 90);
+  const a = document.createElement('a'); a.download = `cartel-asistencia-${CONFIG.evento.slug}.png`; a.href = cv.toDataURL('image/png');
+  document.body.append(a); a.click(); a.remove();
+});
+
+cargarCartel();

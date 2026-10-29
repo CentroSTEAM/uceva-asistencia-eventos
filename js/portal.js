@@ -74,7 +74,7 @@ form.addEventListener('submit', async (e) => {
     const r = await api.consultar(doc);
     if (r?.encontrado) {
       mostrarPase(r);
-      guardarUltimoPase(r);
+      guardarUltimoPase({ ...r, documento: doc });
       resultado.innerHTML = mensaje('ok', `¡Estás en la lista, ${r.nombre.split(' ')[0]}!`,
         'Guarda tu pase y muéstralo en la entrada, desde el celular o impreso.');
       if (matchMedia('(max-width: 959px)').matches) contPase.scrollIntoView({ behavior: 'smooth', block: 'center' });
