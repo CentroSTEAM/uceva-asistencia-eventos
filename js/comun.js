@@ -218,9 +218,10 @@ export async function descargarPase(p) {
   const palabras = CONFIG.evento.nombre.split(' '); const lineas = []; let l = '';
   palabras.forEach((w) => { const t = l ? `${l} ${w}` : w; if (g.measureText(t).width > W - 160 && l) { lineas.push(l); l = w; } else l = t; });
   lineas.push(l);
-  lineas.slice(0, 2).forEach((t, i) => g.fillText(t, 70, 210 + i * 72));
+  lineas.slice(0, 2).forEach((t, i) => g.fillText(t, 70, 190 + i * 70));
   g.font = `400 26px ${fuente}`; g.fillStyle = 'rgba(255,255,255,.95)';
-  g.fillText(lugarFecha(), 70, CAB - 40, W - 140);
+  g.fillText(CONFIG.evento.fecha, 70, CAB - 76, W - 140);
+  g.fillText(CONFIG.evento.lugar, 70, CAB - 38, W - 140);
 
   // QR
   const qr = crearQR(p.token); const n = qr.getModuleCount();

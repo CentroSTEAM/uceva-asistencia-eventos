@@ -78,7 +78,7 @@ function mostrarResultado(r, doc) {
       <h1>${r.estado === 'ok' ? `¡Bienvenido, ${esc(r.nombre.split(' ')[0])}!` : `Ya estabas registrado, ${esc(r.nombre.split(' ')[0])}`}</h1>
       <p class="asistir__confirma">${r.estado === 'ok' ? 'Tu asistencia quedó registrada' : 'Tu asistencia ya estaba registrada'} a las <strong>${hora(r.hora)}</strong></p>
       <p class="asistir__nombre">${esc(r.nombre)}<span>${esc(TIPOS[r.tipo_asistente] || '')}</span></p>
-      <p class="ayuda">Disfruta la ${esc(CONFIG.evento.nombre)}. Si el personal te lo pide, muestra esta pantalla.</p>
+      <p class="ayuda">Disfruta el ${esc(CONFIG.evento.nombre)}. Si el personal te lo pide, muestra esta pantalla.</p>
     </div>`);
     return;
   }
