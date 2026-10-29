@@ -260,6 +260,7 @@
 @media (min-width: 960px) {
   .portada__dentro { row-gap: 1.5rem; padding-top: 3rem; align-items: start; }
   .portada__cabecera { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; justify-items: start; gap: 3rem; margin-bottom: 0; }
-  .eslogan { max-width: 30rem; justify-self: end; }
+  .eslogan { max-width: 30rem; justify-self: end; align-self: end; margin-bottom: 5%; }
+  .portada__pase { margin-top: 3rem; }
 }
 .titulo-evento--sobrio { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4.6vw, 2.7rem); letter-spacing: -.03em; color: var(--tinta); margin-bottom: .8rem; }
