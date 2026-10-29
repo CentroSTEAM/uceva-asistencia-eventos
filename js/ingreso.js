@@ -4,6 +4,7 @@
 import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js';
 import { CONFIG, MODO_DEMO } from './config.js';
 import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js';
+import { ENLACES_PERSONAL } from './comun.js';
 import { exigirSesion, salir } from './sesion.js';
 
 const raiz = $('#contenido');
@@ -12,7 +13,7 @@ const leerLS = (k, def) => { try { return JSON.parse(localStorage.getItem(k)) ??
 const guardarLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const horaCorta = (iso) => iso ? new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }) : '';
 
-montarBarra('ingreso.html', [['ingreso.html', 'Ingreso'], ['panel.html', 'Panel']]);
+montarBarra('ingreso.html', ENLACES_PERSONAL);
 const perfil = await exigirSesion(raiz);
 
 // ---------------------------------------------------------------------

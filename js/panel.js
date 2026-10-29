@@ -4,10 +4,11 @@
 import { api, TIPOS } from './api.js';
 import { CONFIG } from './config.js';
 import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js';
+import { ENLACES_PERSONAL } from './comun.js';
 import { exigirSesion, salir } from './sesion.js';
 
 const raiz = $('#contenido');
-montarBarra('panel.html', [['ingreso.html', 'Ingreso'], ['panel.html', 'Panel']]);
+montarBarra('panel.html', ENLACES_PERSONAL);
 const perfil = await exigirSesion(raiz, { soloAdmin: true });
 const num = (n) => Number(n || 0).toLocaleString('es-CO');
 

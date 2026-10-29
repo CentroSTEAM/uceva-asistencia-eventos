@@ -20,9 +20,17 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 
 export const $ = (sel, raiz = document) => raiz.querySelector(sel);
 
-export function montarBarra(actual, enlaces = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia']]) {
+export const ENLACES_PUBLICOS = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia']];
+export const ENLACES_PERSONAL = [['index.html', 'Portal'], ['asistir.html', 'Asistencia'], ['panel.html', 'Panel'], ['ingreso.html', 'Puerta']];
+
+export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
+  // Si en este navegador hay alguien del personal con sesión, el menú público suma "Panel"
+  let personal = false;
+  try { personal = !!localStorage.getItem('uceva-perfil'); } catch {}
+  const publico = enlaces === ENLACES_PUBLICOS;
+  if (publico && personal) enlaces = [...ENLACES_PUBLICOS, ['panel.html', 'Panel']];
   const barra = document.createElement('header');
-  barra.className = 'barra';
+  barra.className = enlaces.length > 3 ? 'barra barra--densa' : 'barra';
   barra.innerHTML = `
     <div class="barra__dentro">
       <a class="marca" href="index.html" aria-label="${esc(CONFIG.evento.nombre)}, inicio">
@@ -42,6 +50,18 @@ export function montarBarra(actual, enlaces = [['index.html', 'Mi pase'], ['regi
     aviso.className = 'aviso-demo';
     aviso.innerHTML = '<strong>Modo demostración.</strong> Los datos se guardan solo en este navegador.';
     barra.after(aviso);
+  }
+  // Acceso discreto para el personal en las páginas públicas
+  if (publico) {
+    let pie = document.querySelector('.pie__dentro');
+    if (!pie) {
+      const f = document.createElement('footer'); f.className = 'pie';
+      f.innerHTML = '<div class="pie__dentro"></div>'; document.body.append(f); pie = f.firstChild;
+    }
+    const acceso = document.createElement('p');
+    acceso.className = 'acceso-personal';
+    acceso.innerHTML = 'Personal del evento: <a href="panel.html">Panel</a> y <a href="ingreso.html">Puerta</a>';
+    pie.append(acceso);
   }
   const saltar = document.createElement('a');
   saltar.className = 'saltar'; saltar.href = '#contenido'; saltar.textContent = 'Saltar al contenido';

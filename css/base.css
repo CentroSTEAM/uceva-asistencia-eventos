@@ -117,6 +117,11 @@ p { margin: 0 0 1em; max-width: 40em; }
 .barra nav a:hover { color: var(--tinta); }
 .barra nav a[aria-current="page"] { background: var(--blanco); color: var(--tinta); box-shadow: var(--sombra-1); }
 .barra nav a { white-space: nowrap; }
+.barra nav { overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.barra nav::-webkit-scrollbar { display: none; }
+.barra__dentro { min-width: 0; }
+.acceso-personal { flex-basis: 100%; margin-top: .6rem !important; font-size: .8rem; color: var(--tinta-3); }
+.acceso-personal a { color: var(--tinta-2); }
 @media (max-width: 560px) { .marca__texto span { display: none; } .barra nav a { padding: .45rem .7rem; } }
 @media (max-width: 440px) { .marca__texto { display: none; } .barra__dentro { gap: .5rem; padding-inline: 1rem; } .barra nav a { padding: .45rem .65rem; font-size: .8rem; } }
 
@@ -276,4 +281,15 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
   .pase-marco { filter: none; }
   .pase { border: 1px solid #bbb; transform: none; -webkit-mask: none; mask: none; }
   .pase__cabeza { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+@media (max-width: 440px) {
+  .barra--densa .barra__dentro { padding-inline: .75rem; gap: .4rem; }
+  .barra--densa .marca__logo { height: 1.55rem; }
+  .barra--densa nav { padding: .2rem; gap: 0; }
+  .barra--densa nav a { padding: .45rem .5rem; font-size: .76rem; }
+}
+@media (max-width: 380px) {
+  .barra--densa .marca__logo { height: 1.3rem; }
+  .barra--densa nav a { padding: .45rem .4rem; font-size: .72rem; }
 }
