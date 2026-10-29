@@ -70,7 +70,7 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
     <span class="creditos__texto">Plataforma desarrollada por</span>
     <span class="creditos__logos">
       <span class="creditos__steam"><img src="img/centro-steam.png" alt="" width="210" height="240"><span><strong>Centro STEAM+</strong><small>UCEVA</small></span></span>
-      <img class="creditos__vips" src="img/vips.jpg" alt="VIPS, Vicerrectoría de Investigación y Proyección Social" width="837" height="230">
+      <span class="creditos__steam creditos__vips"><img src="img/vips-logo.png" alt="" width="480" height="351"><span><strong>VIPS</strong><small>Vicerrectoría de Investigación<br>y Proyección Social</small></span></span>
     </span>`;
   pie.append(creditos);
   const saltar = document.createElement('a');
