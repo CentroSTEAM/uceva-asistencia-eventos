@@ -254,5 +254,12 @@
 .invitacion__caja { background: #5e4d96; }
 
 /* Banner oficial "Día de la Inclusión" */
-.banner-dia { display: block; width: 100%; max-width: 40rem; height: auto; margin: 0 0 1.2rem -.4rem; }
+.portada__cabecera { grid-column: 1 / -1; display: grid; justify-items: center; gap: .6rem; margin-bottom: .4rem; }
+.banner-dia { display: block; width: 100%; max-width: 40rem; height: auto; }
+.eslogan { display: block; width: 100%; max-width: 24rem; height: auto; }
+@media (min-width: 960px) {
+  .portada__dentro { row-gap: 1.5rem; padding-top: 3rem; align-items: start; }
+  .portada__cabecera { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; justify-items: start; gap: 3rem; margin-bottom: 0; }
+  .eslogan { max-width: 30rem; justify-self: end; }
+}
 .titulo-evento--sobrio { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4.6vw, 2.7rem); letter-spacing: -.03em; color: var(--tinta); margin-bottom: .8rem; }
