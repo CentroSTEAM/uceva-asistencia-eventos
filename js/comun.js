@@ -51,18 +51,23 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
     aviso.innerHTML = '<strong>Modo demostración.</strong> Los datos se guardan solo en este navegador.';
     barra.after(aviso);
   }
+  let pie = document.querySelector('.pie__dentro');
+  if (!pie) {
+    const f = document.createElement('footer'); f.className = 'pie';
+    f.innerHTML = '<div class="pie__dentro"></div>'; document.body.append(f); pie = f.firstChild;
+  }
   // Acceso discreto para el personal en las páginas públicas
   if (publico) {
-    let pie = document.querySelector('.pie__dentro');
-    if (!pie) {
-      const f = document.createElement('footer'); f.className = 'pie';
-      f.innerHTML = '<div class="pie__dentro"></div>'; document.body.append(f); pie = f.firstChild;
-    }
     const acceso = document.createElement('p');
     acceso.className = 'acceso-personal';
     acceso.innerHTML = 'Personal del evento: <a href="panel.html">Panel</a> y <a href="ingreso.html">Escanear QR</a>';
     pie.append(acceso);
   }
+  // Créditos del desarrollo
+  const creditos = document.createElement('p');
+  creditos.className = 'creditos';
+  creditos.innerHTML = 'Plataforma desarrollada por el equipo <strong>Centro STEAM+</strong> y la <strong>Vicerrectoría de Investigación y Proyección Social (VIPS)</strong> · UCEVA';
+  pie.append(creditos);
   const saltar = document.createElement('a');
   saltar.className = 'saltar'; saltar.href = '#contenido'; saltar.textContent = 'Saltar al contenido';
   document.body.prepend(saltar);
