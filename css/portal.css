@@ -1,0 +1,62 @@
+.portal {
+  display: grid; gap: 3rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .portal { grid-template-columns: minmax(0, 1fr) 22rem; gap: 4.5rem; padding-top: 4rem; }
+  .portal__pase { position: sticky; top: 2rem; }
+}
+
+.portal h1 { color: var(--verde-hondo); max-width: 12ch; }
+
+.consulta { margin-top: 2rem; max-width: 34rem; }
+.consulta__fila { display: flex; gap: .6rem; }
+.consulta__fila input { font-size: var(--t-2); font-weight: 700; letter-spacing: .04em; min-height: 3.6rem; }
+.consulta__fila .boton { min-height: 3.6rem; flex: none; }
+@media (max-width: 420px) {
+  .consulta__fila { flex-direction: column; }
+}
+
+#resultado { max-width: 34rem; }
+#resultado .mensaje .boton { margin-top: .8rem; }
+
+.pasos { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--linea); max-width: 38rem; }
+.pasos h2 { font-size: var(--t-3); }
+.pasos ol { list-style: none; counter-reset: paso; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 1.1rem; }
+.pasos li { counter-increment: paso; display: grid; grid-template-columns: 2.4rem 1fr; gap: .9rem; align-items: start; }
+.pasos li::before {
+  content: counter(paso);
+  width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800;
+  background: var(--verde-suave); color: var(--verde-hondo);
+}
+.pasos li strong { display: block; }
+
+.portal__pase { display: grid; justify-items: center; gap: 1.1rem; }
+.acciones-pase { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
+.acciones-pase[hidden] { display: none; }
+
+@media print {
+  .portal { display: block; }
+  .portal__consulta { display: none; }
+  .portal__pase { position: static; }
+}
+
+/* ---------- Registro ---------- */
+.registro { margin-top: 2rem; max-width: 40rem; }
+.grupo--sensible {
+  background: var(--blanco); border: 1px solid var(--linea); border-radius: 16px;
+  padding: 1.1rem 1.1rem .2rem; margin-bottom: 1.4rem;
+}
+.grupo--sensible legend { float: left; width: 100%; margin-bottom: .3rem; }
+.grupo--sensible legend + * { clear: both; }
+.grupo--sensible .opciones { margin-bottom: 1rem; }
+.campo--apoyo .marca-check { background: var(--papel); }
+.campo .marca-check--legal { font-weight: 400; }
+.lista-errores { margin: .4rem 0 0; padding-left: 1.2rem; }
+.lista-errores a { color: var(--error); font-weight: 700; }
+.nota-final { margin-top: 1rem; text-align: center; max-width: none; }
+.registro[hidden] { display: none; }
+
+@media (max-width: 899px) { .pase--vacio { display: none; } }

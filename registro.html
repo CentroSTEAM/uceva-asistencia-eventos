@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de invitados | Noche de la Inclusión UCEVA</title>
+  <meta name="theme-color" content="#005c35">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/portal.css">
+  <script src="vendor/qrcode.js" defer></script>
+  <script src="vendor/supabase.js" defer></script>
+  <script type="module" src="js/registro.js"></script>
+</head>
+<body>
+  <main id="contenido" class="pagina portal">
+    <section class="portal__consulta" aria-labelledby="titulo">
+      <h1 id="titulo">Regístrate como invitado</h1>
+      <p class="entrada">Para personas que no son estudiantes, docentes ni funcionarios de la UCEVA. Al terminar recibes tu pase con código QR.</p>
+
+      <form id="form-registro" class="registro" novalidate>
+        <div id="errores" aria-live="assertive"></div>
+
+        <div class="fila-2 fila-2--doc">
+          <div class="campo">
+            <label for="tipo_documento">Tipo de documento</label>
+            <select id="tipo_documento" name="tipo_documento">
+              <option value="CC">Cédula de ciudadanía</option>
+              <option value="TI">Tarjeta de identidad</option>
+              <option value="CE">Cédula de extranjería</option>
+              <option value="PPT">Permiso por protección temporal</option>
+              <option value="PA">Pasaporte</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="documento">Número de documento</label>
+            <input id="documento" name="documento" type="text" inputmode="numeric" autocomplete="off" required aria-describedby="documento-estado">
+            <div id="documento-estado" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="fila-2">
+          <div class="campo">
+            <label for="nombres">Nombres</label>
+            <input id="nombres" name="nombres" type="text" autocomplete="given-name" required>
+          </div>
+          <div class="campo">
+            <label for="apellidos">Apellidos</label>
+            <input id="apellidos" name="apellidos" type="text" autocomplete="family-name" required>
+          </div>
+        </div>
+
+        <div class="fila-2">
+          <div class="campo">
+            <label for="correo">Correo electrónico</label>
+            <input id="correo" name="correo" type="email" autocomplete="email" required>
+          </div>
+          <div class="campo">
+            <label for="celular">Celular</label>
+            <input id="celular" name="celular" type="tel" inputmode="tel" autocomplete="tel" required placeholder="3001234567">
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="entidad">¿De dónde nos visitas?</label>
+          <input id="entidad" name="entidad" type="text" required aria-describedby="entidad-ayuda" list="entidades">
+          <datalist id="entidades">
+            <option value="Particular">
+            <option value="Colegio">
+            <option value="Empresa">
+            <option value="Entidad pública">
+            <option value="Fundación u organización social">
+            <option value="Otra institución de educación superior">
+          </datalist>
+          <p id="entidad-ayuda" class="ayuda">Empresa, colegio, organización o municipio. Si vienes por tu cuenta, escribe "Particular".</p>
+        </div>
+
+        <fieldset class="grupo grupo--sensible">
+          <legend>¿Te reconoces en alguno de estos grupos? <span class="opcional">(opcional)</span></legend>
+          <p class="ayuda">Nos ayuda a preparar mejor el evento. Es un dato sensible: solo lo guardamos si marcas la autorización de abajo, y puedes no responder.</p>
+          <div class="opciones" id="poblacion">
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Persona con discapacidad"> Persona con discapacidad</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Comunidad indígena"> Comunidad indígena</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Comunidad negra, afrocolombiana, raizal o palenquera"> Comunidad negra, afrocolombiana, raizal o palenquera</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Pueblo Rrom"> Pueblo Rrom</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Víctima del conflicto armado"> Víctima del conflicto armado</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Población LGBTIQ+"> Población LGBTIQ+</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Persona migrante"> Persona migrante</label>
+            <label class="marca-check"><input type="checkbox" name="poblacion" value="Persona mayor"> Persona mayor</label>
+          </div>
+          <div class="campo campo--apoyo">
+            <label class="marca-check"><input type="checkbox" id="acepta_datos_sensibles"> Autorizo el tratamiento de este dato sensible para fines estadísticos y de atención en el evento.</label>
+          </div>
+        </fieldset>
+
+        <div class="campo">
+          <label class="marca-check marca-check--legal">
+            <input type="checkbox" id="acepta_tratamiento" required>
+            <span>Autorizo a la UCEVA a tratar mis datos personales para gestionar mi asistencia a este evento, según la Ley 1581 de 2012 y su <a id="enlace-politica" href="#" target="_blank" rel="noopener">política de tratamiento de datos</a>.</span>
+          </label>
+        </div>
+
+        <button class="boton boton--bloque" type="submit" id="btn-registrar">Registrarme y obtener mi pase</button>
+        <p class="ayuda nota-final">¿Eres de la UCEVA? Primero <a href="index.html">consulta tu documento</a>: es probable que ya estés en la lista.</p>
+      </form>
+
+      <div id="resultado" aria-live="polite"></div>
+    </section>
+
+    <aside class="portal__pase" aria-label="Tu pase">
+      <div id="pase"></div>
+      <div id="acciones-pase" class="acciones-pase no-imprimir" hidden>
+        <button class="boton" type="button" id="btn-descargar"></button>
+        <button class="boton boton--claro" type="button" id="btn-imprimir">Imprimir</button>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="pie">
+    <div class="pie__dentro">
+      <p>Unidad Central del Valle del Cauca, Vicerrectoría de Investigación y Proyección Social.</p>
+    </div>
+  </footer>
+</body>
+</html>

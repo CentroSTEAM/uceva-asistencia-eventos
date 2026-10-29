@@ -1,0 +1,94 @@
+/* Pantalla de la puerta: pensada para un celular en la mano, de noche,
+   con fila de gente. Todo grande, resultado imposible de malinterpretar. */
+
+.cuerpo-ingreso .pagina { padding-top: 1.25rem; padding-bottom: 2rem; }
+
+.acceso { max-width: 26rem; margin: 2rem auto 0; }
+.acceso h1 { font-size: var(--t-5); color: var(--verde-hondo); }
+
+.puesto { background: var(--blanco); border: 1px solid var(--linea); border-radius: 18px; padding: 1rem 1.1rem .9rem; }
+.puesto__fila { display: flex; gap: 1rem; align-items: flex-end; justify-content: space-between; }
+.campo--compacto { margin: 0; flex: 1; min-width: 0; }
+.puesto__conteo { flex: none; }
+.campo--compacto select { min-height: 2.8rem; }
+.puesto__conteo { margin: 0; text-align: right; line-height: 1.1; }
+.puesto__conteo strong { display: block; font-size: var(--t-5); font-weight: 800; color: var(--verde-hondo); font-variant-numeric: tabular-nums; }
+.puesto__conteo span { font-size: var(--t-0); color: var(--tinta-2); }
+.puesto__estado { display: flex; gap: .55rem; align-items: flex-start; margin: .9rem 0 0; font-size: var(--t-0); max-width: none; }
+.puesto__estado svg { width: 1.25rem; height: 1.25rem; flex: none; margin-top: .1rem; }
+.puesto__estado.en-linea svg { color: var(--ok); }
+.puesto__estado.sin-linea { color: var(--aviso); }
+.puesto__estado.sin-linea svg { color: var(--aviso); }
+
+.pestanas {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin: 1.1rem 0 1rem;
+  background: #e3e9e5; padding: .3rem; border-radius: 999px;
+}
+.pestanas button {
+  font: inherit; font-weight: 700; font-size: var(--t-0); min-height: 2.9rem; border: 0; border-radius: 999px;
+  background: transparent; color: var(--tinta-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: .45rem;
+}
+.pestanas button svg { width: 1.2rem; height: 1.2rem; }
+.pestanas button[aria-selected="true"] { background: var(--blanco); color: var(--verde-hondo); box-shadow: 0 1px 3px rgba(19,32,26,.18); }
+
+.visor {
+  position: relative; aspect-ratio: 1; width: 100%; border-radius: 22px; overflow: hidden;
+  background: var(--noche);
+}
+.visor video { width: 100%; height: 100%; object-fit: cover; }
+.visor__inactivo {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: .8rem;
+  color: var(--blanco); text-align: center; padding: 1.5rem;
+}
+.visor__inactivo[hidden] { display: none; }
+.visor__inactivo p { margin: 0; }
+.visor__inactivo .mensaje p { color: var(--tinta); }
+.visor__ayuda { text-align: center; margin: .7rem auto 0; }
+
+.buscar label { font-weight: 700; display: block; margin-bottom: .4rem; }
+.buscar__fila { display: flex; gap: .5rem; }
+.buscar__fila input { font-size: var(--t-2); min-height: 3.4rem; }
+.buscar__fila .boton { min-height: 3.4rem; }
+.buscar .ayuda { margin-top: .5rem; }
+
+.lista-personas { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .6rem; }
+.lista-personas li {
+  background: var(--blanco); border: 1px solid var(--linea); border-radius: 14px;
+  padding: .85rem 1rem; display: flex; gap: .8rem; align-items: center; justify-content: space-between; flex-wrap: wrap;
+}
+.lista-personas strong { display: block; font-size: var(--t-2); }
+.lista-personas span { font-size: var(--t-0); color: var(--tinta-2); }
+.etiqueta { display: inline-flex; align-items: center; gap: .35rem; font-weight: 700; font-size: var(--t-0); padding: .35rem .7rem; border-radius: 999px; }
+.etiqueta svg { width: 1.1rem; height: 1.1rem; }
+.lista-personas .etiqueta--aviso { background: var(--aviso-fondo); color: var(--aviso); }
+
+.puesto__pie { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: center; justify-content: center; margin-top: 2rem; font-size: var(--t-0); color: var(--tinta-2); }
+.enlace { font: inherit; background: none; border: 0; color: var(--verde); text-decoration: underline; text-underline-offset: .18em; cursor: pointer; padding: .5rem .2rem; }
+
+/* ---------- Veredicto ---------- */
+.veredicto {
+  position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 1.5rem;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  animation: veredicto-entra .16s ease-out both;
+}
+.veredicto[hidden] { display: none; }
+.veredicto--ok    { background: var(--ok);    color: var(--blanco); }
+.veredicto--aviso { background: #f2b234;      color: #2b1b00; }
+.veredicto--error { background: var(--error); color: var(--blanco); }
+.veredicto__caja { text-align: center; max-width: 30rem; width: 100%; }
+.veredicto__icono svg { width: 7.5rem; height: 7.5rem; margin: 0 auto 1rem; stroke-width: 2.2; }
+.veredicto__titulo { font-size: clamp(2.2rem, 10vw, 3.4rem); font-weight: 800; line-height: 1.05; margin: 0 auto .6rem; }
+.veredicto__nombre { font-size: clamp(1.5rem, 6.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin: 0 auto .5rem; overflow-wrap: anywhere; }
+.veredicto__detalle { font-size: var(--t-2); margin: 0 auto 2rem; opacity: .95; }
+.veredicto__marca { display: inline-block; margin-top: .6rem; font-size: var(--t-0); font-weight: 700; padding: .3rem .7rem; border-radius: 999px; background: rgba(255,255,255,.18); }
+.veredicto__seguir { background: var(--blanco); border-color: var(--blanco); color: var(--tinta); min-height: 3.6rem; font-size: var(--t-2); }
+.veredicto__seguir:hover { background: #f0f0f0; border-color: #f0f0f0; color: var(--tinta); }
+.veredicto--ok .veredicto__seguir { display: none; }
+@keyframes veredicto-entra { from { opacity: 0; transform: scale(.98); } }
+
+.brindis {
+  position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%); z-index: 60;
+  background: var(--tinta); color: var(--blanco); padding: .8rem 1.1rem; border-radius: 12px; font-size: var(--t-0);
+  max-width: calc(100% - 2rem);
+}
