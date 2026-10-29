@@ -23,7 +23,7 @@
 .barras { display: grid; gap: .6rem; }
 .barra-fila { display: grid; grid-template-columns: 9rem 1fr 3.5rem; gap: .7rem; align-items: center; font-size: var(--t-0); }
 .barra-fila__nombre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.barra-fila__pista { height: .9rem; background: var(--papel); border-radius: 6px; overflow: hidden; }
+.barra-fila__pista { height: .9rem; background: var(--fondo); border-radius: 6px; overflow: hidden; }
 .barra-fila__valor { display: block; height: 100%; background: var(--c); border-radius: 6px; }
 .barra-fila__n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 
@@ -33,6 +33,18 @@
 .flujo__n { font-size: .75rem; font-weight: 700; margin-bottom: .2rem; }
 .flujo__hora { font-size: .7rem; color: var(--tinta-2); margin-top: .3rem; white-space: nowrap; }
 
-input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; border: 2px dashed #8fa398; border-radius: var(--radio-campo); background: var(--papel); width: 100%; }
+input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; border: 2px dashed #8fa398; border-radius: var(--r-campo); background: var(--fondo); width: 100%; }
 .bloque .mensaje p, .bloque .mensaje li { font-size: var(--t-0); }
 .bloque .lista-errores li { color: var(--tinta); }
+
+/* ---------- v2 ---------- */
+.panel-cabeza h1 { color: var(--tinta); letter-spacing: -.04em; }
+.cifra, .bloque { border-radius: 24px; box-shadow: var(--sombra-1); border-color: rgba(219,228,222,.8); }
+.cifra__valor { font-family: var(--display); letter-spacing: -.04em; }
+.cifra--mayor { position: relative; overflow: hidden; background: #0d2a1d; border: 0; }
+.cifra--mayor::before { content: ""; position: absolute; inset: 0; opacity: .9;
+  background: radial-gradient(70% 140% at 100% 0%, rgba(229,25,124,.55), transparent 60%), radial-gradient(60% 140% at 80% 120%, rgba(59,91,255,.6), transparent 60%), radial-gradient(50% 120% at 0% 100%, rgba(0,184,107,.55), transparent 60%); }
+.cifra--mayor > * { position: relative; }
+.barra-fila__pista { height: .75rem; border-radius: 999px; }
+.barra-fila__valor { border-radius: 999px; }
+.flujo__barra { background: linear-gradient(180deg, var(--e-turquesa), var(--verde)); border-radius: 8px 8px 3px 3px; }

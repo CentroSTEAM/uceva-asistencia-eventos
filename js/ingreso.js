@@ -42,7 +42,7 @@ raiz.innerHTML = `
         <label for="punto">Punto de ingreso</label>
         <select id="punto">${CONFIG.puntos.map((p) => `<option${p === punto ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select>
       </div>
-      <p class="puesto__conteo"><strong id="conteo">${conteo.n}</strong><span>ingresos en este celular</span></p>
+      <p class="puesto__conteo"><strong id="conteo">${conteo.n}</strong><span>ingresos aquí</span></p>
     </div>
     <p class="puesto__estado" id="estado" role="status"></p>
   </div>

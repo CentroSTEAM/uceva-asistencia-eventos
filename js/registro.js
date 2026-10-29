@@ -1,6 +1,6 @@
 import { api, normalizarDoc } from './api.js';
 import { CONFIG } from './config.js';
-import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js';
+import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js';
 
 montarBarra('registro.html');
 
@@ -13,6 +13,9 @@ const docEstado = $('#documento-estado');
 let paseActual = null;
 
 $('#enlace-politica').href = CONFIG.institucion.politicaDatosUrl;
+document.querySelectorAll('[data-icono]').forEach((el) => { el.innerHTML = ICONOS[el.dataset.icono] || ''; });
+activarTilt($('.portada__pase'));
+vigilarPase($('.portada__pase'));
 $('#btn-descargar').innerHTML = `${ICONOS.descargar} Descargar pase`;
 $('#btn-descargar').addEventListener('click', () => paseActual && descargarPase(paseActual));
 $('#btn-imprimir').addEventListener('click', () => window.print());
@@ -107,7 +110,7 @@ form.addEventListener('submit', async (e) => {
     $('#resultado').innerHTML = mensaje('ok', `Listo, ${r.nombre.split(' ')[0]}. Ya estás en la lista`,
       'Descarga tu pase o toma una captura de pantalla y muéstralo en la entrada. También puedes consultarlo cuando quieras con tu documento.');
     $('#titulo').textContent = 'Registro completo';
-    document.querySelector('.entrada').hidden = true;
+    $('#entrada').hidden = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (err) {
     errores.innerHTML = mensaje('error', 'No pudimos completar tu registro',

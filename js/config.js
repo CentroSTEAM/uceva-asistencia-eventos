@@ -13,7 +13,8 @@ export const CONFIG = {
   evento: {
     slug: 'noche-inclusion-2026',          // igual al de la tabla eventos
     nombre: 'Noche de la Inclusión',
-    fecha: '2026',                          // texto libre, p. ej. "Viernes 13 de noviembre · 6:00 p. m."
+    fecha: 'Fecha por confirmar',           // texto libre, p. ej. "Viernes 13 de noviembre, 6:00 p. m."
+    fechaISO: '',                           // p. ej. '2026-11-13T18:00:00-05:00' activa la cuenta regresiva
     lugar: 'UCEVA, Tuluá',
   },
 

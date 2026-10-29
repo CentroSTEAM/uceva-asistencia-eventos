@@ -2,13 +2,11 @@
 <html lang="es-CO">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Consulta tu pase | Noche de la Inclusión UCEVA</title>
   <meta name="description" content="Consulta con tu documento si estás en la lista de la Noche de la Inclusión de la UCEVA y obtén tu pase con código QR.">
-  <meta name="theme-color" content="#005c35">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/portal.css">
   <script src="vendor/qrcode.js" defer></script>
@@ -16,48 +14,76 @@
   <script type="module" src="js/portal.js"></script>
 </head>
 <body>
-  <main id="contenido" class="pagina portal">
-    <section class="portal__consulta" aria-labelledby="titulo">
-      <h1 id="titulo">Noche de la Inclusión</h1>
-      <p class="entrada">Escribe tu número de documento para saber si ya estás en la lista. Si estás, aquí mismo recibes tu pase con código QR para entrar más rápido.</p>
+  <main id="contenido">
+    <section class="portada" aria-labelledby="titulo">
+      <div class="aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div class="portada__dentro">
+        <div class="portada__texto">
+          <ul class="chips" id="chips" aria-label="Datos del evento"></ul>
+          <h1 id="titulo" class="titulo-espectro">Noche de la Inclusión</h1>
+          <p class="entrada">Una noche para celebrarnos en la diferencia. Consulta tu documento y recibe tu pase de ingreso con código QR.</p>
 
-      <form id="form-consulta" class="consulta" novalidate>
-        <div class="campo">
-          <label for="documento">Número de documento</label>
-          <div class="consulta__fila">
-            <input id="documento" name="documento" type="text" inputmode="numeric" autocomplete="off"
-                   placeholder="Por ejemplo 1116254789" aria-describedby="documento-ayuda" required>
-            <button class="boton" type="submit" id="btn-consultar">Consultar</button>
-          </div>
-          <p id="documento-ayuda" class="ayuda">Sin puntos ni espacios. Si tienes pasaporte, escríbelo con sus letras.</p>
+          <div class="cuenta" id="cuenta" hidden></div>
+
+          <form id="form-consulta" class="consulta tarjeta" novalidate>
+            <label for="documento">Tu número de documento</label>
+            <div class="consulta__fila">
+              <input id="documento" name="documento" type="text" inputmode="numeric" autocomplete="off"
+                     placeholder="1116254789" aria-describedby="documento-ayuda" required>
+              <button class="boton boton--verde" type="submit" id="btn-consultar">Consultar</button>
+            </div>
+            <p id="documento-ayuda" class="ayuda">Sin puntos ni espacios. Si tienes pasaporte, escríbelo con sus letras.</p>
+          </form>
+
+          <div id="resultado" class="resultado" aria-live="polite"></div>
         </div>
-      </form>
 
-      <div id="resultado" aria-live="polite"></div>
-
-      <section class="pasos" aria-labelledby="titulo-pasos">
-        <h2 id="titulo-pasos">Cómo entrar al evento</h2>
-        <ol>
-          <li><div><strong>Consulta tu documento.</strong> Estudiantes, docentes, investigadores, directivos y funcionarios ya están cargados por sus dependencias.</div></li>
-          <li><div><strong>Guarda tu pase.</strong> Descárgalo como imagen o toma una captura de pantalla.</div></li>
-          <li><div><strong>Muéstralo en la entrada.</strong> El personal escanea el código en un segundo. Si no lo tienes, te buscan por documento.</div></li>
-        </ol>
-        <p>¿No eres de la UCEVA? <a href="registro.html">Regístrate como invitado</a>, toma menos de dos minutos.</p>
-      </section>
+        <aside class="portada__pase" aria-label="Tu pase">
+          <div id="pase"></div>
+          <div id="acciones-pase" class="acciones-pase no-imprimir" hidden>
+            <button class="boton" type="button" id="btn-descargar"></button>
+            <button class="boton boton--claro" type="button" id="btn-imprimir">Imprimir</button>
+          </div>
+        </aside>
+      </div>
     </section>
 
-    <aside class="portal__pase" aria-label="Tu pase">
-      <div id="pase"></div>
-      <div id="acciones-pase" class="acciones-pase no-imprimir" hidden>
-        <button class="boton" type="button" id="btn-descargar"></button>
-        <button class="boton boton--claro" type="button" id="btn-imprimir">Imprimir</button>
+    <section class="pasos" aria-labelledby="titulo-pasos">
+      <h2 id="titulo-pasos">Entrar te toma un segundo</h2>
+      <ol class="pasos__lista">
+        <li class="paso">
+          <span class="paso__icono" data-icono="buscar"></span>
+          <h3>Consulta tu documento</h3>
+          <p>Estudiantes, docentes, investigadores, directivos y funcionarios ya están cargados por sus dependencias.</p>
+        </li>
+        <li class="paso">
+          <span class="paso__icono" data-icono="boleta"></span>
+          <h3>Guarda tu pase</h3>
+          <p>Descárgalo como imagen o toma una captura de pantalla. También puedes volver a consultarlo aquí.</p>
+        </li>
+        <li class="paso">
+          <span class="paso__icono" data-icono="camara"></span>
+          <h3>Muéstralo en la entrada</h3>
+          <p>El personal escanea tu código. Si no lo tienes a mano, te buscan por documento.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="invitacion" aria-labelledby="titulo-invitacion">
+      <div class="invitacion__caja">
+        <div>
+          <h2 id="titulo-invitacion">¿No eres de la UCEVA? Estás invitado.</h2>
+          <p>Regístrate en menos de dos minutos y recibe tu pase al instante.</p>
+        </div>
+        <a class="boton boton--claro boton--grande" href="registro.html" id="btn-invitado">Registrarme como invitado</a>
       </div>
-    </aside>
+    </section>
   </main>
 
   <footer class="pie">
     <div class="pie__dentro">
       <p>Unidad Central del Valle del Cauca, Vicerrectoría de Investigación y Proyección Social.</p>
+      <p>Tuluá, Valle del Cauca</p>
     </div>
   </footer>
 </body>

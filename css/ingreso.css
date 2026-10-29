@@ -7,7 +7,7 @@
 .acceso h1 { font-size: var(--t-5); color: var(--verde-hondo); }
 
 .puesto { background: var(--blanco); border: 1px solid var(--linea); border-radius: 18px; padding: 1rem 1.1rem .9rem; }
-.puesto__fila { display: flex; gap: 1rem; align-items: flex-end; justify-content: space-between; }
+.puesto__fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: end; }
 .campo--compacto { margin: 0; flex: 1; min-width: 0; }
 .puesto__conteo { flex: none; }
 .campo--compacto select { min-height: 2.8rem; }
@@ -34,7 +34,7 @@
 
 .visor {
   position: relative; aspect-ratio: 1; width: 100%; border-radius: 22px; overflow: hidden;
-  background: var(--noche);
+  background: radial-gradient(120% 120% at 0% 0%, #12324a, #101828 60%);
 }
 .visor video { width: 100%; height: 100%; object-fit: cover; }
 .visor__inactivo {
@@ -92,3 +92,23 @@
   background: var(--tinta); color: var(--blanco); padding: .8rem 1.1rem; border-radius: 12px; font-size: var(--t-0);
   max-width: calc(100% - 2rem);
 }
+
+/* ---------- v2 ---------- */
+.acceso { background: var(--blanco); border-radius: var(--r-tarjeta); box-shadow: var(--sombra-2); padding: 2rem 1.6rem 1.6rem; position: relative; overflow: hidden; }
+.acceso::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--espectro); }
+.acceso h1 { font-size: clamp(2.2rem, 7vw, 3rem); color: var(--tinta); }
+.acceso .entrada { font-size: var(--t-1); }
+.puesto { border-radius: 24px; box-shadow: var(--sombra-1); border-color: rgba(219,228,222,.8); }
+.puesto__conteo strong { font-family: var(--display); letter-spacing: -.04em; color: var(--tinta); }
+.pestanas { background: #e7ede9; }
+.visor { border-radius: 28px; box-shadow: var(--sombra-2); }
+.visor::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 3px; pointer-events: none;
+  background: var(--espectro); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.visor__inactivo p { font-family: var(--display); font-size: var(--t-2); font-weight: 700; }
+.lista-personas li { border-radius: 18px; box-shadow: var(--sombra-1); }
+.lista-personas strong { font-family: var(--display); letter-spacing: -.015em; }
+.veredicto__titulo, .veredicto__nombre { font-family: var(--display); letter-spacing: -.035em; }
+.veredicto--ok    { background: radial-gradient(120% 80% at 50% 0%, #10a557, #06683a); }
+.veredicto--error { background: radial-gradient(120% 80% at 50% 0%, #d8392f, #96180f); }
+.veredicto--aviso { background: radial-gradient(120% 80% at 50% 0%, #ffc94d, #f0a01a); }
+.veredicto__icono svg { filter: drop-shadow(0 8px 24px rgba(0,0,0,.18)); }

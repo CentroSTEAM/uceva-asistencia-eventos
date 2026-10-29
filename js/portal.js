@@ -1,5 +1,6 @@
 import { api, normalizarDoc } from './api.js';
-import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ultimoPase, ICONOS, $ } from './comun.js';
+import { CONFIG } from './config.js';
+import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ultimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js';
 
 montarBarra('index.html');
 
@@ -11,9 +12,35 @@ const contPase = $('#pase');
 const acciones = $('#acciones-pase');
 let paseActual = null;
 
+// Datos del evento, íconos y botones
+$('#chips').innerHTML = [
+  [ICONOS.calendario, CONFIG.evento.fecha],
+  [ICONOS.lugar, CONFIG.evento.lugar],
+  [ICONOS.boleta, 'Entrada con pase'],
+].filter(([, t]) => t).map(([i, t]) => `<li class="chip">${i}${esc(t)}</li>`).join('');
+document.querySelectorAll('[data-icono]').forEach((el) => { el.innerHTML = ICONOS[el.dataset.icono] || ''; });
+$('#btn-invitado').insertAdjacentHTML('beforeend', ICONOS.flecha);
 $('#btn-descargar').innerHTML = `${ICONOS.descargar} Descargar pase`;
 $('#btn-descargar').addEventListener('click', () => paseActual && descargarPase(paseActual));
 $('#btn-imprimir').addEventListener('click', () => window.print());
+activarTilt($('.portada__pase'));
+vigilarPase($('.portada__pase'));
+
+// Cuenta regresiva (solo si hay fecha exacta configurada)
+if (CONFIG.evento.fechaISO) {
+  const meta = new Date(CONFIG.evento.fechaISO).getTime();
+  const cuenta = $('#cuenta');
+  const pintar = () => {
+    const falta = meta - Date.now();
+    if (falta <= 0) { cuenta.hidden = true; return; }
+    const d = Math.floor(falta / 864e5), h = Math.floor(falta / 36e5) % 24, m = Math.floor(falta / 6e4) % 60;
+    cuenta.hidden = false;
+    cuenta.setAttribute('aria-label', `Faltan ${d} días, ${h} horas y ${m} minutos`);
+    cuenta.innerHTML = [[d, d === 1 ? 'día' : 'días'], [h, 'horas'], [m, 'min']]
+      .map(([n, t]) => `<div aria-hidden="true"><b>${String(n).padStart(2, '0')}</b><span>${t}</span></div>`).join('');
+  };
+  pintar(); setInterval(pintar, 30000);
+}
 
 function mostrarPase(p) {
   paseActual = p;
@@ -48,18 +75,18 @@ form.addEventListener('submit', async (e) => {
     if (r?.encontrado) {
       mostrarPase(r);
       guardarUltimoPase(r);
-      resultado.innerHTML = mensaje('ok', `Estás en la lista, ${r.nombre.split(' ')[0]}`,
+      resultado.innerHTML = mensaje('ok', `¡Estás en la lista, ${r.nombre.split(' ')[0]}!`,
         'Guarda tu pase y muéstralo en la entrada, desde el celular o impreso.');
-      if (matchMedia('(max-width: 899px)').matches) contPase.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (matchMedia('(max-width: 959px)').matches) contPase.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       mostrarPase(null);
       resultado.innerHTML = mensaje('aviso', 'No encontramos ese documento',
         `Revisa que esté bien escrito. Si eres de la UCEVA, tu dependencia puede no haber enviado la lista todavía; en ese caso, o si eres invitado, regístrate ahora.
-         <br><a class="boton" href="registro.html?doc=${encodeURIComponent(doc)}">Registrarme</a>`);
+         <br><a class="boton boton--verde" href="registro.html?doc=${encodeURIComponent(doc)}">Registrarme ${ICONOS.flecha}</a>`);
     }
   } catch (err) {
     resultado.innerHTML = mensaje('error', 'No pudimos consultar en este momento',
-      err.sinConexion ? 'Revisa tu conexión a internet e inténtalo de nuevo.' : err.message);
+      err.sinConexion ? 'Revisa tu conexión a internet e inténtalo de nuevo.' : esc(err.message));
   } finally {
     boton.disabled = false; boton.textContent = 'Consultar';
   }
