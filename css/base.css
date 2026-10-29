@@ -107,21 +107,8 @@ p { margin: 0 0 1em; max-width: 40em; }
 .marca__55 { height: 2.6rem; width: auto; }
 .marca__sep { width: 1px; height: 2.2rem; background: var(--linea-2); }
 .marca__logo { height: 2.6rem; width: auto; }
-.marca__vips { height: 2.3rem; width: auto; }
-.marca__steam { display: flex; align-items: center; gap: .35rem; font-family: var(--display); font-weight: 800; font-size: .82rem; line-height: 1.02; letter-spacing: -.01em; color: var(--tinta); }
-.marca__steam img { height: 2.3rem; width: auto; }
-/* Pantallas medianas y celulares: logos arriba, menú debajo */
-@media (max-width: 1020px) {
-  .barra__dentro { flex-direction: column; align-items: stretch; gap: .55rem; padding-block: .6rem; }
-  .marca { justify-content: center; }
-  .barra nav { align-self: center; }
-}
-@media (max-width: 560px) {
-  .marca__logos { gap: .5rem; }
-  .marca__55 { height: 2rem; } .marca__logo { height: 2rem; } .marca__vips, .marca__steam img { height: 1.8rem; }
-  .marca__steam { font-size: .7rem; } .marca__sep { height: 1.7rem; }
-}
-@media (max-width: 380px) { .marca__55, .marca__sep:first-of-type { display: none; } .marca__steam span { display: none; } }
+@media (max-width: 640px) { .marca__55, .marca__sep { display: none; } }
+@media (max-width: 440px) { .marca__logo { height: 2rem; } }
 .marca__texto { line-height: 1.1; }
 .marca__texto strong { display: block; font-family: var(--display); font-size: 1.05rem; letter-spacing: -.01em; }
 .marca__texto span { font-size: .78rem; color: var(--tinta-2); }
@@ -290,6 +277,9 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .creditos__steam img { width: auto; height: 3.1rem; }
 .creditos__steam strong { display: block; font-family: var(--display); font-size: 1.05rem; color: var(--tinta); line-height: 1.1; }
 .creditos__steam small { display: block; font-size: .72rem; letter-spacing: .1em; color: var(--tinta-3); font-weight: 700; }
+.creditos__uceva { height: 3.1rem; width: auto; }
+.creditos__sep { width: 1px; height: 2.6rem; background: var(--linea-2); }
+@media (max-width: 640px) { .creditos__logos { flex-direction: column; gap: 1rem; } .creditos__sep { display: none; } }
 .creditos__contacto { font-size: .82rem; color: var(--tinta-2); }
 .creditos__vips small { letter-spacing: .02em; text-transform: none; line-height: 1.25; }
 
