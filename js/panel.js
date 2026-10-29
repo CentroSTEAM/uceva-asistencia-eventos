@@ -9,7 +9,8 @@ import { exigirSesion, salir } from './sesion.js';
 
 const raiz = $('#contenido');
 montarBarra('panel.html', ENLACES_PERSONAL);
-const perfil = await exigirSesion(raiz, { soloAdmin: true });
+const perfil = await exigirSesion(raiz, { roles: ['admin', 'consulta'] });
+const esAdmin = perfil.rol === 'admin';
 const num = (n) => Number(n || 0).toLocaleString('es-CO');
 
 raiz.innerHTML = `
@@ -86,12 +87,44 @@ raiz.innerHTML = `
     </section>
 
     <section class="bloque" aria-labelledby="t-exportar">
-      <h2 id="t-exportar">Descargar asistencia</h2>
-      <p>Listado de quienes ingresaron, con hora, punto y datos de contacto. Se abre en Excel.</p>
-      <button class="boton" type="button" id="btn-exportar">${ICONOS.descargar} Descargar listado</button>
+      <h2 id="t-exportar">Descargar información</h2>
+      <p>Archivos que se abren en Excel, con datos de contacto, tipo de asistente y programa.</p>
+      <div class="descargas">
+        <div><strong>Asistentes</strong><span>Quienes ingresaron, con hora y forma de registro.</span>
+          <button class="boton" type="button" id="btn-exportar">${ICONOS.descargar} Descargar asistentes</button></div>
+        <div><strong>Inscritos</strong><span>Toda la base, con una columna que indica si asistió.</span>
+          <button class="boton boton--claro" type="button" id="btn-exportar-inscritos">${ICONOS.descargar} Descargar inscritos</button></div>
+      </div>
       <div id="exportar-resultado" aria-live="polite"></div>
     </section>
-  </div>`;
+  </div>
+
+  <section class="bloque personal" aria-labelledby="t-personal" id="seccion-personal">
+    <h2 id="t-personal">Personal y permisos</h2>
+    <p>Crea las cuentas de quienes trabajan en el evento. Cada persona entra por "Personal" con su correo y la contraseña que le asignes.</p>
+    <form id="form-personal" class="personal__form" novalidate>
+      <div class="campo"><label for="p-nombre">Nombre</label><input id="p-nombre" type="text" autocomplete="off" placeholder="Laura Gómez"></div>
+      <div class="campo"><label for="p-correo">Correo</label><input id="p-correo" type="email" autocomplete="off" placeholder="laura.gomez@uceva.edu.co"></div>
+      <div class="campo"><label for="p-rol">Rol</label>
+        <select id="p-rol">
+          <option value="portero">Portero: escanea pases</option>
+          <option value="consulta">Consulta: ve el panel y descarga listados</option>
+          <option value="admin">Administrador: todo</option>
+        </select></div>
+      <div class="campo"><label for="p-clave">Contraseña temporal</label>
+        <div class="personal__clave"><input id="p-clave" type="text" autocomplete="off" spellcheck="false"><button class="boton boton--claro" type="button" id="btn-generar">Generar</button></div>
+        <p class="ayuda">Mínimo 8 caracteres. Compártela con la persona por un medio privado.</p></div>
+      <button class="boton boton--verde" type="submit" id="btn-crear-personal">Crear cuenta</button>
+    </form>
+    <div id="personal-msg" aria-live="polite"></div>
+    <div class="personal__tabla" id="personal-lista"><p class="ayuda">Cargando…</p></div>
+  </section>`;
+
+if (!esAdmin) {
+  // El rol consulta ve estadísticas y descargas, sin controles de administración.
+  ['.cartel', '#seccion-personal'].forEach((s) => $(s)?.remove());
+  $('[aria-labelledby="t-importar"]')?.remove();
+}
 
 $('#btn-salir').addEventListener('click', salir);
 
@@ -267,6 +300,102 @@ $('#btn-exportar').addEventListener('click', async () => {
   } finally { btn.disabled = false; }
 });
 
+$('#btn-exportar-inscritos').addEventListener('click', async () => {
+  const btn = $('#btn-exportar-inscritos'); btn.disabled = true;
+  try {
+    const filas = (await api.exportarPersonas()).map((f) => ({
+      ...f, inscrito_en: f.inscrito_en ? new Date(f.inscrito_en).toLocaleString('es-CO') : '',
+      hora_ingreso: f.hora_ingreso ? new Date(f.hora_ingreso).toLocaleString('es-CO') : '',
+      asistio: f.asistio ? 'sí' : 'no', tipo_asistente: TIPOS[f.tipo_asistente] || f.tipo_asistente,
+      origen: f.origen === 'registro' ? 'Autorregistro' : 'Base oficial',
+    }));
+    if (!filas.length) { $('#exportar-resultado').innerHTML = mensaje('aviso', 'Todavía no hay personas inscritas'); return; }
+    descargarCSV(`inscritos-${CONFIG.evento.slug}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.csv`, filas,
+      ['tipo_documento', 'documento', 'nombres', 'apellidos', 'tipo_asistente', 'dependencia', 'entidad', 'correo', 'celular',
+        'origen', 'inscrito_en', 'asistio', 'hora_ingreso', 'poblacion']);
+    $('#exportar-resultado').innerHTML = mensaje('ok', `Descargaste ${num(filas.length)} personas inscritas`);
+  } catch (err) {
+    $('#exportar-resultado').innerHTML = mensaje('error', 'No se pudo descargar', esc(err.message));
+  } finally { btn.disabled = false; }
+});
+
+// ---------------------------------------------------------------------
+//  Personal y permisos (solo administradores)
+// ---------------------------------------------------------------------
+
+const ROLES = { portero: 'Portero', consulta: 'Consulta', admin: 'Administrador' };
+const claveAleatoria = () => {
+  const a = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  return Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => a[b % a.length]).join('');
+};
+const fecha = (iso) => iso ? new Date(iso).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'Nunca';
+
+async function pintarPersonal() {
+  const caja = $('#personal-lista');
+  try {
+    const lista = await api.listarPersonal();
+    caja.innerHTML = `<table>
+      <thead><tr><th>Persona</th><th>Rol</th><th>Último ingreso</th><th><span class="solo-lectores">Acciones</span></th></tr></thead>
+      <tbody>${lista.map((x) => `<tr data-id="${esc(x.user_id)}">
+        <td><strong>${esc(x.nombre)}${x.soy_yo ? ' <em>(tú)</em>' : ''}</strong><span>${esc(x.correo || '')}</span></td>
+        <td><select class="p-rol" aria-label="Rol de ${esc(x.nombre)}" ${x.soy_yo ? 'disabled' : ''}>
+          ${Object.entries(ROLES).map(([k, v]) => `<option value="${k}"${k === x.rol ? ' selected' : ''}>${v}</option>`).join('')}</select></td>
+        <td>${fecha(x.ultimo_ingreso)}</td>
+        <td class="personal__acciones">${x.soy_yo ? '' : `<button type="button" class="enlace" data-accion="clave">Nueva contraseña</button>
+          <button type="button" class="enlace enlace--peligro" data-accion="eliminar">Quitar acceso</button>`}</td>
+      </tr>`).join('')}</tbody></table>`;
+  } catch (err) {
+    caja.innerHTML = mensaje('error', 'No se pudo cargar el personal', `${esc(err.message)}${/function|listar_personal/i.test(err.message) ? ' Ejecuta en Supabase la migración 004.' : ''}`);
+  }
+}
+
+if (esAdmin) {
+  $('#btn-generar').addEventListener('click', () => { $('#p-clave').value = claveAleatoria(); });
+  $('#form-personal').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const datos = { accion: 'crear', nombre: $('#p-nombre').value.trim(), correo: $('#p-correo').value.trim(), rol: $('#p-rol').value, clave: $('#p-clave').value };
+    if (datos.nombre.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(datos.correo) || datos.clave.length < 8) {
+      $('#personal-msg').innerHTML = mensaje('error', 'Revisa los datos', 'Escribe el nombre, un correo válido y una contraseña de al menos 8 caracteres.');
+      return;
+    }
+    const btn = $('#btn-crear-personal'); btn.disabled = true; btn.textContent = 'Creando…';
+    try {
+      await api.gestionarPersonal(datos);
+      $('#personal-msg').innerHTML = mensaje('ok', `Cuenta creada para ${datos.nombre}`,
+        `Compártelo por un medio privado. Correo: <code>${esc(datos.correo)}</code> · Contraseña: <code>${esc(datos.clave)}</code>. Entra por "Personal" en el portal.`);
+      $('#form-personal').reset();
+      pintarPersonal();
+    } catch (err) {
+      $('#personal-msg').innerHTML = mensaje('error', 'No se pudo crear la cuenta', esc(err.message));
+    } finally { btn.disabled = false; btn.textContent = 'Crear cuenta'; }
+  });
+
+  $('#personal-lista').addEventListener('change', async (e) => {
+    const sel = e.target.closest('.p-rol'); if (!sel) return;
+    const id = sel.closest('tr').dataset.id;
+    try { await api.cambiarRol(id, sel.value); $('#personal-msg').innerHTML = mensaje('ok', `Rol cambiado a ${ROLES[sel.value]}`); }
+    catch (err) { $('#personal-msg').innerHTML = mensaje('error', 'No se pudo cambiar el rol', esc(err.message)); pintarPersonal(); }
+  });
+
+  $('#personal-lista').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-accion]'); if (!b) return;
+    const fila = b.closest('tr'); const id = fila.dataset.id; const nombre = fila.querySelector('strong').textContent;
+    if (b.dataset.accion === 'eliminar') {
+      if (b.dataset.confirmar !== 'si') { b.dataset.confirmar = 'si'; b.textContent = '¿Seguro? Toca otra vez'; return; }
+      try { await api.gestionarPersonal({ accion: 'eliminar', user_id: id }); $('#personal-msg').innerHTML = mensaje('ok', `Se quitó el acceso a ${nombre}`); pintarPersonal(); }
+      catch (err) { $('#personal-msg').innerHTML = mensaje('error', 'No se pudo quitar el acceso', esc(err.message)); }
+    }
+    if (b.dataset.accion === 'clave') {
+      const clave = claveAleatoria();
+      try {
+        await api.gestionarPersonal({ accion: 'clave', user_id: id, clave });
+        $('#personal-msg').innerHTML = mensaje('ok', `Nueva contraseña para ${nombre}`, `Compártela por un medio privado: <code>${esc(clave)}</code>`);
+      } catch (err) { $('#personal-msg').innerHTML = mensaje('error', 'No se pudo cambiar la contraseña', esc(err.message)); }
+    }
+  });
+  pintarPersonal();
+}
+
 // ---------------------------------------------------------------------
 //  Cartel de autoregistro de asistencia
 // ---------------------------------------------------------------------
@@ -323,4 +452,4 @@ $('#btn-cartel').addEventListener('click', async () => {
   document.body.append(a); a.click(); a.remove();
 });
 
-cargarCartel();
+if (esAdmin) cargarCartel();

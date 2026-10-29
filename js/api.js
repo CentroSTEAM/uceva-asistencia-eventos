@@ -91,6 +91,21 @@ function crearSupabase() {
     estadisticas: () => rpc('estadisticas', { p_evento: EVENTO }),
     importar: (filas) => rpc('importar_personas', { p_filas: filas }, { timeoutMs: 60000 }),
     exportar: () => rpc('exportar_asistencia', { p_evento: EVENTO }, { timeoutMs: 60000 }),
+    exportarPersonas: () => rpc('exportar_personas', { p_evento: EVENTO }, { timeoutMs: 60000 }),
+    listarPersonal: () => rpc('listar_personal'),
+    cambiarRol: (userId, rol) => rpc('cambiar_rol', { p_user_id: userId, p_rol: rol }),
+    async gestionarPersonal(datos) {
+      if (!navigator.onLine) throw new ErrorApi('Sin conexión a internet.', { sinConexion: true });
+      const { data, error } = await cliente.functions.invoke('personal', { body: datos });
+      if (error) {
+        let mensaje = 'No se pudo completar la acción.';
+        try { mensaje = (await error.context.json()).error || mensaje; } catch {}
+        if (/Failed to send|fetch/i.test(error.message || '') && mensaje === 'No se pudo completar la acción.')
+          mensaje = 'No se encontró la función "personal" en Supabase. Revisa que esté desplegada.';
+        throw new ErrorApi(mensaje);
+      }
+      return data;
+    },
   };
 }
 
@@ -135,9 +150,10 @@ function crearDemo() {
     get: () => { try { return JSON.parse(sessionStorage.getItem('uceva-demo-sesion')); } catch { return null; } },
     set: (v) => { try { v ? sessionStorage.setItem('uceva-demo-sesion', JSON.stringify(v)) : sessionStorage.removeItem('uceva-demo-sesion'); } catch {} },
   };
-  const exigir = (admin = false) => {
+  const exigir = (nivel = false) => {
     const s = sesion.get();
-    if (!s || (admin && s.rol !== 'admin')) throw new ErrorApi('No tienes permiso.', { permiso: true });
+    const ok = s && (!nivel || s.rol === 'admin' || (nivel === 'consulta' && s.rol === 'consulta'));
+    if (!ok) throw new ErrorApi('No tienes permiso.', { permiso: true });
     return s;
   };
 
@@ -202,7 +218,7 @@ function crearDemo() {
     async iniciarSesion(correo, clave) {
       await espera(250);
       if (clave !== 'demo') throw new ErrorApi('En modo demostración la contraseña es "demo".');
-      const perfil = { nombre: correo.split('@')[0] || 'Personal', rol: 'admin' };
+      const perfil = { nombre: correo.split('@')[0] || 'Personal', correo, rol: 'admin' };
       sesion.set(perfil); return perfil;
     },
     async cerrarSesion() { sesion.set(null); },
@@ -281,12 +297,43 @@ function crearDemo() {
     },
 
     async exportar() {
-      exigir(true); const db = leer(); const porId = Object.fromEntries(db.personas.map((p) => [p.id, p]));
+      exigir('consulta'); const db = leer(); const porId = Object.fromEntries(db.personas.map((p) => [p.id, p]));
       return db.asistencias.map((a) => { const p = porId[a.persona_id] || {}; return {
         hora_ingreso: a.registrado_en, punto: a.punto, metodo: a.metodo, sin_conexion: a.sin_conexion,
         tipo_documento: p.tipo_documento, documento: p.documento, nombres: p.nombres, apellidos: p.apellidos,
         tipo_asistente: p.tipo_asistente, dependencia: p.dependencia, entidad: p.entidad, correo: p.correo,
         celular: p.celular, origen: p.origen, poblacion: (p.poblacion || []).join('; ') }; });
+    },
+
+    async exportarPersonas() {
+      exigir('consulta'); const db = leer();
+      return db.personas.map((p) => { const a = db.asistencias.find((x) => x.persona_id === p.id); return {
+        tipo_documento: p.tipo_documento, documento: p.documento, nombres: p.nombres, apellidos: p.apellidos,
+        tipo_asistente: p.tipo_asistente, dependencia: p.dependencia, entidad: p.entidad, correo: p.correo, celular: p.celular,
+        origen: p.origen, inscrito_en: p.creado_en, asistio: !!a, hora_ingreso: a?.registrado_en || null, poblacion: (p.poblacion || []).join('; ') }; });
+    },
+    async listarPersonal() {
+      exigir(true); const db = leer(); const yo = sesion.get();
+      db.personal ||= [{ user_id: 'demo-admin', nombre: yo.nombre, correo: yo.correo || 'demo@uceva.edu.co', rol: 'admin', creado_en: new Date().toISOString() }];
+      guardar(db);
+      return db.personal.map((x) => ({ ...x, soy_yo: x.user_id === 'demo-admin' }));
+    },
+    async cambiarRol(userId, rol) {
+      exigir(true); const db = leer();
+      if (userId === 'demo-admin' && rol !== 'admin') throw new ErrorApi('No puedes quitarte a ti mismo el rol de administrador.');
+      const x = (db.personal || []).find((y) => y.user_id === userId); if (x) x.rol = rol; guardar(db); return { ok: true };
+    },
+    async gestionarPersonal(d) {
+      exigir(true); await espera(250); const db = leer(); db.personal ||= [];
+      if (d.accion === 'crear') {
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.correo || '')) throw new ErrorApi('El correo no es válido.');
+        if ((d.clave || '').length < 8) throw new ErrorApi('La contraseña debe tener al menos 8 caracteres.');
+        const previo = db.personal.find((x) => x.correo === d.correo.toLowerCase());
+        if (previo) Object.assign(previo, { nombre: d.nombre, rol: d.rol });
+        else db.personal.push({ user_id: `u${Date.now()}`, nombre: d.nombre, correo: d.correo.toLowerCase(), rol: d.rol, creado_en: new Date().toISOString() });
+      }
+      if (d.accion === 'eliminar') db.personal = db.personal.filter((x) => x.user_id !== d.user_id);
+      guardar(db); return { ok: true };
     },
 
     reiniciar() { localStorage.removeItem(CLAVE); },

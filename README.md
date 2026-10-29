@@ -21,19 +21,24 @@ Mientras `js/config.js` no tenga los datos de Supabase, la plataforma funciona e
 ## Puesta en marcha con Supabase
 
 1. Crea una cuenta en [supabase.com](https://supabase.com) y un proyecto nuevo (plan gratuito, región `East US` o `South America`).
-2. En **SQL Editor**, pega el contenido de `supabase/schema.sql` y ejecútalo. (Si ya lo habías ejecutado antes, ejecuta además, en orden, `supabase/migracion-002-autoasistencia.sql` y `supabase/migracion-003-asistencia-simple.sql`.)
+2. En **SQL Editor**, pega el contenido de `supabase/schema.sql` y ejecútalo. (Si ya lo habías ejecutado antes, ejecuta además, en orden, `supabase/migracion-002-autoasistencia.sql`, `supabase/migracion-003-asistencia-simple.sql` y `supabase/migracion-004-personal.sql`.)
 3. En **Project Settings → API** copia *Project URL* y la llave *anon public* en `js/config.js`.
-4. Crea los usuarios del personal en **Authentication → Users → Add user** (correo y contraseña, marcando *Auto Confirm User*).
-5. Habilítalos como personal en **SQL Editor**:
+4. Crea el primer administrador en **Authentication → Users → Add user** (correo y contraseña, marcando *Auto Confirm User*) y habilítalo en **SQL Editor**:
 
    ```sql
    insert into staff (user_id, nombre, rol)
    select id, 'Coordinación VIPS', 'admin' from auth.users where email = 'coordinacion@uceva.edu.co';
-
-   insert into staff (user_id, nombre, rol)
-   select id, split_part(email, '@', 1), 'portero' from auth.users
-   where email in ('puerta1@uceva.edu.co', 'puerta2@uceva.edu.co');
    ```
+
+5. Despliega la función que crea las cuentas del personal: **Edge Functions → Deploy a new function → Via Editor**, nombre `personal`, pega `supabase/functions/personal/index.ts` y despliega. En los ajustes de la función desactiva *Verify JWT* (la función comprueba ella misma que quien llama es administrador). Desde ese momento el resto del personal se crea en el panel, sección **Personal y permisos**.
+
+### Roles del personal
+
+| Rol | Qué puede hacer |
+|---|---|
+| Portero | Escanear pases y buscar personas por cédula en `ingreso.html` |
+| Consulta | Ver las estadísticas del panel y descargar los listados de asistentes e inscritos |
+| Administrador | Todo lo anterior, cargar bases, abrir o cerrar el registro de asistencia y gestionar el personal |
 
 6. Ajusta en `js/config.js` el nombre, la fecha, el lugar y los puntos de ingreso del evento.
 
