@@ -64,9 +64,14 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
     pie.append(acceso);
   }
   // Créditos del desarrollo
-  const creditos = document.createElement('p');
+  const creditos = document.createElement('div');
   creditos.className = 'creditos';
-  creditos.innerHTML = 'Plataforma desarrollada por el equipo <strong>Centro STEAM+</strong> y la <strong>Vicerrectoría de Investigación y Proyección Social (VIPS)</strong> · UCEVA';
+  creditos.innerHTML = `
+    <span class="creditos__texto">Plataforma desarrollada por</span>
+    <span class="creditos__logos">
+      <span class="creditos__steam"><img src="img/centro-steam.png" alt="" width="210" height="240"><span><strong>Centro STEAM+</strong><small>UCEVA</small></span></span>
+      <img class="creditos__vips" src="img/vips.jpg" alt="VIPS, Vicerrectoría de Investigación y Proyección Social" width="837" height="230">
+    </span>`;
   pie.append(creditos);
   const saltar = document.createElement('a');
   saltar.className = 'saltar'; saltar.href = '#contenido'; saltar.textContent = 'Saltar al contenido';
