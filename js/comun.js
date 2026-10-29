@@ -25,9 +25,12 @@ export function montarBarra(actual, enlaces = [['index.html', 'Mi pase'], ['regi
   barra.className = 'barra';
   barra.innerHTML = `
     <div class="barra__dentro">
-      <a class="marca" href="index.html">
-        <span class="marca__sello" aria-hidden="true">U</span>
-        <span class="marca__texto"><strong>${esc(CONFIG.institucion.sigla)}</strong><span>${esc(CONFIG.evento.nombre)}</span></span>
+      <a class="marca" href="index.html" aria-label="${esc(CONFIG.evento.nombre)}, inicio">
+        <span class="marca__logos">
+          <img class="marca__55" src="img/uceva-55.png" alt="" width="175" height="159">
+          <span class="marca__sep" aria-hidden="true"></span>
+          <img class="marca__logo" src="img/logo-uceva.png" alt="UCEVA, Unidad Central del Valle del Cauca" width="511" height="163">
+        </span>
       </a>
       <nav aria-label="Principal">
         ${enlaces.map(([href, txt]) => `<a href="${href}"${href === actual ? ' aria-current="page"' : ''}>${esc(txt)}</a>`).join('')}

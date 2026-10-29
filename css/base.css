@@ -13,18 +13,22 @@
 
 :root {
   /* Institucional (provisional hasta recibir el manual de marca) */
-  --verde:        #00653a;
-  --verde-hondo:  #00401f;
-  --verde-suave:  #e3f3ea;
+  --verde:        #007836;   /* verde del logo UCEVA */
+  --verde-hondo:  #00532a;
+  --verde-suave:  #e2f2e8;
 
-  /* Espectro de la inclusión: solo para portada, pase y acentos */
-  --e-verde:    #00b86b;
-  --e-turquesa: #00b2d6;
-  --e-azul:     #3b5bff;
-  --e-violeta:  #8a3ffc;
-  --e-magenta:  #e5197c;
-  --e-ambar:    #ffb020;
-  --espectro: linear-gradient(100deg, var(--e-verde), var(--e-turquesa) 22%, var(--e-azul) 45%, var(--e-violeta) 62%, var(--e-magenta) 80%, var(--e-ambar));
+  /* Colores del afiche "Día de la Inclusión 2026" (letras de "Inclusión") */
+  --e-morado:   #7260a8;
+  --e-magenta:  #d82a72;
+  --e-turquesa: #00a29c;
+  --e-naranja:  #e47224;
+  --e-amarillo: #f6c600;
+  --e-azul:     #00a2de;
+  /* alias usados por componentes anteriores */
+  --e-verde:    var(--e-turquesa);
+  --e-violeta:  var(--e-morado);
+  --e-ambar:    var(--e-amarillo);
+  --espectro: linear-gradient(100deg, var(--e-morado), var(--e-magenta) 20%, var(--e-turquesa) 40%, var(--e-naranja) 58%, var(--e-amarillo) 72%, var(--e-magenta) 84%, var(--e-azul));
 
   --tinta:   #0f1a15;
   --tinta-2: #4a5b52;
@@ -40,13 +44,13 @@
   --error: #b0241c;  --error-fondo: #fde6e4;
 
   /* Tipo de asistente */
-  --t-estudiante:     #2456d6;
-  --t-docente:        #00653a;
-  --t-investigador:   #6a35d1;
-  --t-directivo:      #9a5b00;
-  --t-administrativo: #1f6280;
-  --t-egresado:       #00797a;
-  --t-externo:        #c0186a;
+  --t-estudiante:     #0077a8;
+  --t-docente:        #007836;
+  --t-investigador:   #5e4d96;
+  --t-directivo:      #a64e10;
+  --t-administrativo: #00706b;
+  --t-egresado:       #6b5300;
+  --t-externo:        #c0215f;
 
   --display: "Bricolage Grotesque", "Atkinson Hyperlegible Next", system-ui, sans-serif;
   --fuente:  "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -57,7 +61,7 @@
   --r-tarjeta: 28px;
   --sombra-1: 0 1px 2px rgba(15, 26, 21, .06), 0 2px 8px rgba(15, 26, 21, .05);
   --sombra-2: 0 2px 4px rgba(15, 26, 21, .04), 0 18px 40px -12px rgba(15, 26, 21, .18);
-  --foco: 0 0 0 3px var(--blanco), 0 0 0 6px var(--e-azul);
+  --foco: 0 0 0 3px var(--blanco), 0 0 0 6px var(--e-morado);
   --suave: cubic-bezier(.2, .8, .2, 1);
 }
 
@@ -99,6 +103,12 @@ p { margin: 0 0 1em; max-width: 40em; }
   font-family: var(--display); font-weight: 800; font-size: 1.15rem;
 }
 .marca__sello::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--espectro); }
+.marca__logos { display: flex; align-items: center; gap: .7rem; }
+.marca__55 { height: 2.6rem; width: auto; }
+.marca__sep { width: 1px; height: 2.2rem; background: var(--linea-2); }
+.marca__logo { height: 2.6rem; width: auto; }
+@media (max-width: 640px) { .marca__55, .marca__sep { display: none; } }
+@media (max-width: 440px) { .marca__logo { height: 2rem; } }
 .marca__texto { line-height: 1.1; }
 .marca__texto strong { display: block; font-family: var(--display); font-size: 1.05rem; letter-spacing: -.01em; }
 .marca__texto span { font-size: .78rem; color: var(--tinta-2); }
@@ -135,7 +145,7 @@ input[type="password"], input[type="number"], select, textarea {
 input::placeholder { color: #8c9a92; }
 input:hover, select:hover, textarea:hover { border-color: #93a69b; background: var(--blanco); }
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  background: var(--blanco); border-color: var(--e-azul); box-shadow: 0 0 0 4px rgba(59, 91, 255, .18); border-radius: var(--r-campo);
+  background: var(--blanco); border-color: var(--e-morado); box-shadow: 0 0 0 4px rgba(114, 96, 168, .2); border-radius: var(--r-campo);
 }
 input[aria-invalid="true"] { border-color: var(--error); background: #fffafa; }
 select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5b52' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .9rem center; background-size: 1.1rem; padding-right: 2.6rem; }
@@ -191,7 +201,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .mensaje--ok    { background: var(--ok-fondo);    color: var(--ok); }
 .mensaje--aviso { background: var(--aviso-fondo); color: var(--aviso); }
 .mensaje--error { background: var(--error-fondo); color: var(--error); }
-.mensaje--info  { background: #eaf0ff; color: #2643c4; }
+.mensaje--info  { background: #eeebf7; color: #5a4a94; }
 
 /* ---------- Pase (boleta digital) ---------- */
 
@@ -215,10 +225,11 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
   position: relative; overflow: hidden; color: var(--blanco); padding: 1.3rem 1.4rem 1.4rem;
   border-radius: var(--r-tarjeta) var(--r-tarjeta) 0 0;
   background:
-    radial-gradient(120% 90% at 0% 0%, var(--e-verde), transparent 55%),
-    radial-gradient(90% 120% at 100% 0%, var(--e-magenta), transparent 55%),
-    radial-gradient(120% 120% at 60% 120%, var(--e-azul), transparent 60%),
-    linear-gradient(135deg, var(--e-turquesa), var(--e-violeta));
+    radial-gradient(110% 90% at 0% 0%, var(--e-morado), transparent 60%),
+    radial-gradient(90% 110% at 100% 0%, var(--e-magenta), transparent 58%),
+    radial-gradient(90% 90% at 100% 110%, var(--e-azul), transparent 60%),
+    radial-gradient(80% 80% at 10% 120%, var(--e-turquesa), transparent 62%),
+    linear-gradient(135deg, var(--e-morado), var(--e-azul));
 }
 .pase__cabeza::after { /* brillo holográfico que sigue al puntero */
   content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light;
@@ -250,7 +261,9 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 /* ---------- Pie ---------- */
 
 .pie { color: var(--tinta-2); font-size: var(--t-0); }
-.pie__dentro { max-width: 76rem; margin: 0 auto; padding: 2rem 1.25rem 2.5rem; display: flex; gap: 1rem; justify-content: space-between; flex-wrap: wrap; border-top: 1px solid var(--linea); }
+.pie__dentro { max-width: 76rem; margin: 0 auto; padding: 2rem 1.25rem 2.5rem; display: flex; gap: 1rem 3rem; justify-content: space-between; flex-wrap: wrap; border-top: 1px solid var(--linea); }
+.pie__dentro > div { flex: 1 1 18rem; }
+.pie__dentro p + p { margin-top: .4rem; }
 .pie p { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {

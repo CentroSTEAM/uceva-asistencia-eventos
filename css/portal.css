@@ -3,12 +3,12 @@
 .portada { position: relative; overflow: hidden; overflow: clip; background: var(--blanco); border-bottom: 1px solid var(--linea); }
 
 /* Aurora: manchas del espectro que se mueven muy despacio */
-.aurora { position: absolute; inset: -20% -10% auto; height: 120%; pointer-events: none; filter: blur(70px) saturate(1.15); opacity: .55; }
+.aurora { position: absolute; inset: -20% -10% auto; height: 120%; pointer-events: none; filter: blur(80px) saturate(1.1); opacity: .32; }
 .aurora span { position: absolute; border-radius: 50%; mix-blend-mode: multiply; animation: deriva 22s ease-in-out infinite alternate; }
-.aurora span:nth-child(1) { width: 46vw; height: 46vw; left: -6vw; top: 4%;  background: var(--e-verde); }
+.aurora span:nth-child(1) { width: 46vw; height: 46vw; left: -6vw; top: 4%;  background: var(--e-morado); }
 .aurora span:nth-child(2) { width: 40vw; height: 40vw; left: 30vw; top: -14%; background: var(--e-turquesa); animation-delay: -6s; }
 .aurora span:nth-child(3) { width: 42vw; height: 42vw; right: -8vw; top: 6%;  background: var(--e-magenta); animation-delay: -12s; opacity: .8; }
-.aurora span:nth-child(4) { width: 34vw; height: 34vw; right: 18vw; top: 40%; background: var(--e-ambar); animation-delay: -3s; opacity: .7; }
+.aurora span:nth-child(4) { width: 34vw; height: 34vw; right: 18vw; top: 40%; background: var(--e-amarillo); animation-delay: -3s; opacity: .7; }
 @keyframes deriva {
   0%   { transform: translate(0, 0) scale(1); }
   50%  { transform: translate(4vw, 3vw) scale(1.08); }
@@ -37,7 +37,7 @@
 
 .titulo-espectro {
   font-size: clamp(3rem, 9.5vw, 6.6rem); line-height: .92; letter-spacing: -.045em; max-width: 9ch; margin-bottom: 1.4rem;
-  background: linear-gradient(100deg, var(--verde-hondo) 0%, #00668a 35%, #3a2fb8 62%, #a3105a 100%);
+  background: linear-gradient(100deg, #5e4d96 0%, #c0215f 45%, #00807b 80%, #0077a8 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   font-variation-settings: "opsz" 96;
 }
@@ -97,9 +97,9 @@
 }
 .invitacion__caja::before {
   content: ""; position: absolute; inset: 0; opacity: .9; pointer-events: none;
-  background: radial-gradient(60% 120% at 100% 0%, rgba(229, 25, 124, .55), transparent 60%),
-              radial-gradient(50% 120% at 70% 120%, rgba(59, 91, 255, .55), transparent 60%),
-              radial-gradient(40% 100% at 0% 100%, rgba(0, 184, 107, .5), transparent 60%);
+  background: radial-gradient(60% 120% at 100% 0%, rgba(216,42,114, .55), transparent 60%),
+              radial-gradient(50% 120% at 70% 120%, rgba(114,96,168, .55), transparent 60%),
+              radial-gradient(40% 100% at 0% 100%, rgba(0,162,156, .5), transparent 60%);
 }
 .invitacion__caja > * { position: relative; }
 .invitacion h2 { margin-bottom: .3rem; }
@@ -121,7 +121,7 @@
 .eleccion__op input { width: 1.3rem; height: 1.3rem; margin: .15rem 0 0; flex: none; accent-color: var(--verde); }
 .eleccion__op strong { display: block; font-family: var(--display); font-size: var(--t-2); letter-spacing: -.02em; line-height: 1.15; margin-bottom: .25rem; }
 .eleccion__op small { display: block; font-size: var(--t-0); color: var(--tinta-2); line-height: 1.4; }
-.eleccion__op:has(input:checked) { border-color: transparent; background: linear-gradient(var(--blanco), var(--blanco)) padding-box, var(--espectro) border-box; border: 2px solid transparent; box-shadow: 0 10px 24px -14px rgba(59, 91, 255, .5); }
+.eleccion__op:has(input:checked) { border-color: transparent; background: linear-gradient(var(--blanco), var(--blanco)) padding-box, var(--espectro) border-box; border: 2px solid transparent; box-shadow: 0 10px 24px -14px rgba(114,96,168, .5); }
 .eleccion__op:has(input:focus-visible) { box-shadow: var(--foco); }
 .vinculo-uceva { margin-top: .2rem; }
 
@@ -187,6 +187,68 @@
 .aviso-asistencia > div { flex: 1 1 14rem; }
 .aviso-asistencia strong { font-family: var(--display); font-size: var(--t-2); letter-spacing: -.02em; }
 .aviso-asistencia p { margin: .1rem 0 0; font-size: var(--t-0); color: var(--tinta-2); }
-.aviso-asistencia__punto { width: .8rem; height: .8rem; border-radius: 50%; background: var(--e-verde); box-shadow: 0 0 0 0 rgba(0,184,107,.6); animation: pulso 2s infinite; }
-@keyframes pulso { 70% { box-shadow: 0 0 0 12px rgba(0,184,107,0); } 100% { box-shadow: 0 0 0 0 rgba(0,184,107,0); } }
+.aviso-asistencia__punto { width: .8rem; height: .8rem; border-radius: 50%; background: var(--e-verde); box-shadow: 0 0 0 0 rgba(0,162,156,.6); animation: pulso 2s infinite; }
+@keyframes pulso { 70% { box-shadow: 0 0 0 12px rgba(0,162,156,0); } 100% { box-shadow: 0 0 0 0 rgba(0,162,156,0); } }
 @media (max-width: 440px) { .aviso-asistencia .boton { width: 100%; } }
+
+
+/* ---------- Identidad del afiche "Día de la Inclusión 2026" ---------- */
+
+.portada { background: linear-gradient(180deg, #fafafa, #f1f2f2); }
+.portada::after { background: linear-gradient(180deg, rgba(250,250,250,.2), rgba(246,246,246,.6) 70%, #f1f2f2); }
+
+.sobretitulo { display: inline-flex; align-items: center; gap: .6rem; margin: 0 0 .9rem; font-weight: 800; font-size: var(--t-0); color: var(--e-magenta); }
+.sobretitulo::before { content: ""; width: 1.8rem; height: 3px; border-radius: 3px; background: var(--e-magenta); }
+
+.titulo-evento { margin: 0 0 1.2rem; line-height: 1; letter-spacing: 0; }
+.titulo-evento__pre { display: block; font-family: var(--display); font-weight: 700; font-size: clamp(1.6rem, 4.4vw, 2.6rem); letter-spacing: -.03em; color: var(--tinta); margin-bottom: .1em; }
+.titulo-inclusion { display: inline-flex; font-family: var(--display); font-weight: 800; font-size: clamp(4.1rem, 17vw, 8.4rem); line-height: .9; letter-spacing: -.02em; font-variation-settings: "opsz" 96; isolation: isolate; }
+.titulo-inclusion > span { mix-blend-mode: multiply; margin-right: -.045em; }
+.titulo-inclusion > span:nth-child(1) { color: var(--e-morado); }
+.titulo-inclusion > span:nth-child(2) { color: var(--e-morado); }
+.titulo-inclusion > span:nth-child(3) { color: var(--e-magenta); }
+.titulo-inclusion > span:nth-child(4) { color: var(--e-turquesa); }
+.titulo-inclusion > span:nth-child(5) { color: var(--e-turquesa); }
+.titulo-inclusion > span:nth-child(6) { color: var(--e-naranja); }
+.titulo-inclusion > span:nth-child(7) { color: var(--e-amarillo); }
+.titulo-inclusion > span:nth-child(8) { color: var(--e-magenta); }
+.titulo-inclusion > span:nth-child(9) { color: var(--e-azul); margin-right: 0; }
+.titulo-inclusion > span:nth-child(7) { color: #e0b400; }
+
+.lema { margin: 0 0 1.4rem; max-width: 34rem; font-size: var(--t-2); line-height: 1.35; font-weight: 700; color: var(--e-magenta); }
+.lema span { display: block; margin-top: .3rem; font-size: var(--t-1); font-weight: 700; color: var(--e-morado); }
+.portada .chips { margin-bottom: 0; }
+
+/* Confeti geométrico del afiche */
+.confeti { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.confeti i { position: absolute; display: block; }
+.confeti__puntos { top: 2.2rem; right: 4%; width: 9rem; height: 4.2rem; background: radial-gradient(circle, var(--e-magenta) 2.6px, transparent 3.2px) 0 0 / 1.8rem 1.4rem; opacity: .85; }
+.confeti__tri { top: 46%; left: 3%; width: 0; height: 0; border-left: .55rem solid transparent; border-right: .55rem solid transparent; border-bottom: .95rem solid var(--e-amarillo); }
+.confeti__tri::after { content: ""; position: absolute; left: -.3rem; top: .32rem; border-left: .3rem solid transparent; border-right: .3rem solid transparent; border-bottom: .5rem solid #f6f6f6; }
+.confeti__tri--2 { top: 18%; left: 47%; transform: rotate(180deg); border-bottom-color: var(--e-morado); }
+.confeti__circ { top: 14%; left: 38%; width: .9rem; height: .9rem; border-radius: 50%; border: 2.5px solid var(--e-turquesa); }
+.confeti__x { bottom: 12%; left: 44%; width: 1rem; height: 1rem; }
+.confeti__x::before, .confeti__x::after { content: ""; position: absolute; left: 50%; top: 0; width: 2.5px; height: 100%; background: var(--e-magenta); transform: rotate(45deg); }
+.confeti__x::after { transform: rotate(-45deg); }
+@media (max-width: 959px) { .confeti .confeti__tri, .confeti .confeti__circ, .confeti .confeti__x { display: none; } }
+@media (max-width: 700px) { .confeti__puntos { width: 6rem; height: 2.8rem; top: 1.2rem; } }
+
+/* Programación */
+.programa { max-width: 76rem; margin: 0 auto; padding: 3rem 1.25rem 1rem; }
+.programa h2 { margin-bottom: .2rem; }
+.programa__fecha { font-weight: 700; color: var(--tinta-2); margin: 0 0 1.5rem; }
+.programa__lista { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .programa__lista { grid-template-columns: 1fr 1fr; } }
+.programa__item { display: flex; gap: 1.2rem; align-items: center; padding: 1.4rem 1.5rem; border-radius: var(--r-tarjeta); background: var(--blanco); border: 1px solid var(--linea); position: relative; overflow: hidden; }
+.programa__item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
+.programa__item--bazar::before { background: var(--e-magenta); }
+.programa__item--noche::before { background: var(--e-azul); }
+.programa__item .programa__hora { margin: 0; flex: none; min-width: 4.6rem; font-family: var(--display); font-weight: 800; font-size: var(--t-5); letter-spacing: -.04em; line-height: 1; }
+.programa__hora span { display: block; font-size: var(--t-0); letter-spacing: 0; font-family: var(--fuente); color: var(--tinta-2); }
+.programa__item--bazar .programa__hora { color: var(--e-magenta); }
+.programa__item--noche .programa__hora { color: #0086b8; }
+.programa__item h3 { margin: 0 0 .25rem; }
+.programa__item p { margin: 0; font-size: var(--t-0); color: var(--tinta-2); }
+
+/* Invitación con colores del afiche */
+.invitacion__caja { background: #5e4d96; }

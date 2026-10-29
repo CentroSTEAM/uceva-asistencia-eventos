@@ -43,7 +43,7 @@ input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; borde
 .cifra__valor { font-family: var(--display); letter-spacing: -.04em; }
 .cifra--mayor { position: relative; overflow: hidden; background: #0d2a1d; border: 0; }
 .cifra--mayor::before { content: ""; position: absolute; inset: 0; opacity: .9;
-  background: radial-gradient(70% 140% at 100% 0%, rgba(229,25,124,.55), transparent 60%), radial-gradient(60% 140% at 80% 120%, rgba(59,91,255,.6), transparent 60%), radial-gradient(50% 120% at 0% 100%, rgba(0,184,107,.55), transparent 60%); }
+  background: radial-gradient(70% 140% at 100% 0%, rgba(216,42,114,.55), transparent 60%), radial-gradient(60% 140% at 80% 120%, rgba(114,96,168,.6), transparent 60%), radial-gradient(50% 120% at 0% 100%, rgba(0,162,156,.55), transparent 60%); }
 .cifra--mayor > * { position: relative; }
 .barra-fila__pista { height: .75rem; border-radius: 999px; }
 .barra-fila__valor { border-radius: 999px; }
