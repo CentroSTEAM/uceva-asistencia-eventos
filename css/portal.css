@@ -254,5 +254,5 @@
 .invitacion__caja { background: #5e4d96; }
 
 /* Banner oficial "Día de la Inclusión" */
-.banner-dia { display: block; width: 100%; max-width: 40rem; height: auto; margin: 0 0 .6rem -.4rem; }
+.banner-dia { display: block; width: 100%; max-width: 40rem; height: auto; margin: 0 0 1.2rem -.4rem; }
 .titulo-evento--sobrio { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4.6vw, 2.7rem); letter-spacing: -.03em; color: var(--tinta); margin-bottom: .8rem; }
