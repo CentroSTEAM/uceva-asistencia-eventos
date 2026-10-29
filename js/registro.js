@@ -1,5 +1,6 @@
 import { api, normalizarDoc } from './api.js';
 import { CONFIG } from './config.js';
+import { FACULTADES, DEPENDENCIAS, OTRA_DEPENDENCIA } from './unidades.js';
 import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js';
 
 montarBarra('registro.html');
@@ -45,12 +46,34 @@ form.documento.addEventListener('blur', async () => {
 });
 
 const esUceva = () => $('#vinculo-uceva').checked;
+const esFacultad = () => FACULTADES.some((f) => f.nombre === form.unidad.value);
+function dependenciaElegida() {
+  const u = form.unidad.value;
+  if (esFacultad()) return `${u} / ${form.programa.value}`;
+  if (u === OTRA_DEPENDENCIA) return form.otra_dependencia.value.trim();
+  return u;
+}
+
+// Listas desplegables: facultad o dependencia, y luego programa
+form.unidad.insertAdjacentHTML('beforeend',
+  `<optgroup label="Facultades">${FACULTADES.map((f) => `<option>${esc(f.nombre)}</option>`).join('')}</optgroup>` +
+  `<optgroup label="Dependencias">${[...DEPENDENCIAS, OTRA_DEPENDENCIA].map((d) => `<option>${esc(d)}</option>`).join('')}</optgroup>`);
+form.unidad.addEventListener('change', () => {
+  const fac = FACULTADES.find((f) => f.nombre === form.unidad.value);
+  $('#campo-programa').hidden = !fac;
+  $('#campo-otra').hidden = form.unidad.value !== OTRA_DEPENDENCIA;
+  form.programa.innerHTML = '<option value="">Elige tu programa</option>' +
+    (fac ? fac.programas.map((p) => `<option>${esc(p)}</option>`).join('') : '');
+  form.querySelectorAll('.error-campo[data-regla="unidad"]').forEach((e) => e.remove());
+});
 const esInvitado = () => $('#vinculo-invitado').checked;
 
 const REGLAS = [
   ['vinculo-uceva', () => esUceva() || esInvitado(), 'Cuéntanos si eres de la UCEVA o invitado.'],
   ['rol', (v) => !esUceva() || v !== '', 'Elige qué eres en la UCEVA.'],
-  ['dependencia', (v) => !esUceva() || v.trim().length >= 2, 'Escribe tu programa, facultad u oficina.'],
+  ['unidad', (v) => !esUceva() || v !== '', 'Elige tu facultad o dependencia.'],
+  ['programa', (v) => !esUceva() || !esFacultad() || v !== '', 'Elige tu programa académico.'],
+  ['otra_dependencia', (v) => !esUceva() || form.unidad.value !== OTRA_DEPENDENCIA || v.trim().length >= 2, 'Escribe el nombre de tu dependencia.'],
   ['documento', (v) => normalizarDoc(v).length >= 4 && normalizarDoc(v).length <= 20, 'Escribe un número de documento válido.'],
   ['nombres', (v) => v.trim().length >= 2, 'Escribe tus nombres.'],
   ['apellidos', (v) => v.trim().length >= 2, 'Escribe tus apellidos.'],
@@ -99,7 +122,7 @@ form.addEventListener('submit', async (e) => {
     correo: form.correo.value.trim(),
     celular: form.celular.value.replace(/[^\d+]/g, ''),
     tipo_asistente: esUceva() ? form.rol.value : 'externo',
-    dependencia: esUceva() ? form.dependencia.value.trim() : null,
+    dependencia: esUceva() ? dependenciaElegida() : null,
     entidad: esInvitado() ? form.entidad.value.trim() : null,
     poblacion,
     acepta_datos_sensibles: poblacion.length > 0 && $('#acepta_datos_sensibles').checked,

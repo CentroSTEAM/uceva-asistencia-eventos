@@ -148,9 +148,9 @@ input[type="password"], input[type="number"], select, textarea {
   transition: border-color .15s, background-color .15s, box-shadow .15s;
 }
 input::placeholder { color: #8c9a92; }
-input:hover, select:hover, textarea:hover { border-color: #93a69b; background: var(--blanco); }
+input:hover, select:hover, textarea:hover { border-color: #93a69b; background-color: var(--blanco); }
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  background: var(--blanco); border-color: var(--e-morado); box-shadow: 0 0 0 4px rgba(114, 96, 168, .2); border-radius: var(--r-campo);
+  background-color: var(--blanco); border-color: var(--e-morado); box-shadow: 0 0 0 4px rgba(114, 96, 168, .2); border-radius: var(--r-campo);
 }
 input[aria-invalid="true"] { border-color: var(--error); background: #fffafa; }
 select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5b52' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .9rem center; background-size: 1.1rem; padding-right: 2.6rem; }

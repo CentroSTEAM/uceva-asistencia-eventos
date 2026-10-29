@@ -37,22 +37,32 @@
                 <span><strong>Soy invitado</strong><small>Vengo de otra institución, una empresa, un colegio o por mi cuenta.</small></span>
               </label>
             </div>
-            <div class="fila-2 vinculo-uceva" id="campos-uceva" hidden>
-              <div class="campo">
-                <label for="rol">En la UCEVA soy</label>
-                <select id="rol" name="rol">
-                  <option value="">Elige una opción</option>
-                  <option value="estudiante">Estudiante</option>
-                  <option value="docente">Docente</option>
-                  <option value="investigador">Investigador</option>
-                  <option value="directivo">Directivo</option>
-                  <option value="administrativo">Administrativo o funcionario</option>
-                  <option value="egresado">Egresado</option>
-                </select>
+            <div class="vinculo-uceva" id="campos-uceva" hidden>
+              <div class="fila-2">
+                <div class="campo">
+                  <label for="rol">En la UCEVA soy</label>
+                  <select id="rol" name="rol">
+                    <option value="">Elige una opción</option>
+                    <option value="estudiante">Estudiante</option>
+                    <option value="docente">Docente</option>
+                    <option value="investigador">Investigador</option>
+                    <option value="directivo">Directivo</option>
+                    <option value="administrativo">Administrativo o funcionario</option>
+                    <option value="egresado">Egresado</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="unidad">Facultad o dependencia</label>
+                  <select id="unidad" name="unidad"><option value="">Elige una opción</option></select>
+                </div>
               </div>
-              <div class="campo">
-                <label for="dependencia">Programa, facultad u oficina</label>
-                <input id="dependencia" name="dependencia" type="text" autocomplete="off" placeholder="Ej.: Ingeniería Electrónica">
+              <div class="campo" id="campo-programa" hidden>
+                <label for="programa">Programa académico</label>
+                <select id="programa" name="programa"><option value="">Elige tu programa</option></select>
+              </div>
+              <div class="campo" id="campo-otra" hidden>
+                <label for="otra_dependencia">¿Cuál dependencia?</label>
+                <input id="otra_dependencia" name="otra_dependencia" type="text" autocomplete="off">
               </div>
             </div>
           </fieldset>
