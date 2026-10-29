@@ -39,13 +39,19 @@ form.documento.addEventListener('blur', async () => {
   } catch { docEstado.innerHTML = ''; }
 });
 
+const esUceva = () => $('#vinculo-uceva').checked;
+const esInvitado = () => $('#vinculo-invitado').checked;
+
 const REGLAS = [
+  ['vinculo-uceva', () => esUceva() || esInvitado(), 'Cuéntanos si eres de la UCEVA o invitado.'],
+  ['rol', (v) => !esUceva() || v !== '', 'Elige qué eres en la UCEVA.'],
+  ['dependencia', (v) => !esUceva() || v.trim().length >= 2, 'Escribe tu programa, facultad u oficina.'],
   ['documento', (v) => normalizarDoc(v).length >= 4 && normalizarDoc(v).length <= 20, 'Escribe un número de documento válido.'],
   ['nombres', (v) => v.trim().length >= 2, 'Escribe tus nombres.'],
   ['apellidos', (v) => v.trim().length >= 2, 'Escribe tus apellidos.'],
   ['correo', (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim()), 'Escribe un correo válido, por ejemplo nombre@correo.com.'],
   ['celular', (v) => v.replace(/\D/g, '').length >= 7, 'Escribe un número de celular de al menos 7 dígitos.'],
-  ['entidad', (v) => v.trim().length >= 2, 'Cuéntanos de dónde nos visitas.'],
+  ['entidad', (v) => !esInvitado() || v.trim().length >= 2, 'Cuéntanos de dónde nos visitas.'],
 ];
 
 function validar() {
@@ -53,12 +59,12 @@ function validar() {
   form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
   form.querySelectorAll('.error-campo[data-regla]').forEach((el) => el.remove());
   for (const [nombre, ok, texto] of REGLAS) {
-    const el = form.elements[nombre];
+    const el = form.elements[nombre] || $('#' + nombre);
     if (!ok(el.value)) {
       fallas.push([el, texto]);
       el.setAttribute('aria-invalid', 'true');
       const p = document.createElement('p'); p.className = 'error-campo'; p.dataset.regla = nombre; p.id = `err-${nombre}`; p.textContent = texto;
-      el.closest('.campo').append(p);
+      (el.closest('.campo') || el.closest('.eleccion')).append(p);
       const ids = new Set((el.getAttribute('aria-describedby') || '').split(' ').filter(Boolean));
       ids.add(`err-${nombre}`); el.setAttribute('aria-describedby', [...ids].join(' '));
     }
@@ -87,7 +93,9 @@ form.addEventListener('submit', async (e) => {
     apellidos: form.apellidos.value.trim(),
     correo: form.correo.value.trim(),
     celular: form.celular.value.replace(/[^\d+]/g, ''),
-    entidad: form.entidad.value.trim(),
+    tipo_asistente: esUceva() ? form.rol.value : 'externo',
+    dependencia: esUceva() ? form.dependencia.value.trim() : null,
+    entidad: esInvitado() ? form.entidad.value.trim() : null,
     poblacion,
     acepta_datos_sensibles: poblacion.length > 0 && $('#acepta_datos_sensibles').checked,
     acepta_tratamiento: true,
@@ -95,7 +103,7 @@ form.addEventListener('submit', async (e) => {
 
   boton.disabled = true; boton.textContent = 'Registrando…';
   try {
-    const r = await api.registrarExterno(datos);
+    const r = await api.registrarPersona(datos);
     if (r.estado === 'ya_registrado') {
       errores.innerHTML = mensaje('aviso', 'Ese documento ya está en la lista',
         `No necesitas registrarte otra vez. <a href="index.html?doc=${encodeURIComponent(datos.documento)}">Ver mi pase</a>`);
@@ -129,3 +137,15 @@ const actualizarSensible = () => {
 };
 $('#poblacion').addEventListener('change', actualizarSensible);
 actualizarSensible();
+
+// Muestra los campos según la relación con la UCEVA.
+function actualizarVinculo() {
+  const uceva = esUceva(), invitado = esInvitado();
+  $('#campos-uceva').hidden = !uceva;
+  $('#campo-entidad').hidden = !invitado;
+  $('#correo-ayuda').hidden = !uceva;
+  if (uceva || invitado) form.querySelector('.error-campo[data-regla="vinculo-uceva"]')?.remove();
+  if (uceva && !form.rol.value) form.rol.focus({ preventScroll: true });
+}
+$('#vinculo').addEventListener('change', actualizarVinculo);
+actualizarVinculo();

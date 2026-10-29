@@ -24,7 +24,7 @@ raiz.innerHTML = `
     <div class="cifra cifra--mayor"><span class="cifra__valor" id="c-ingresos">…</span><span class="cifra__texto">personas han ingresado</span></div>
     <div class="cifra"><span class="cifra__valor" id="c-15">…</span><span class="cifra__texto">en los últimos 15 minutos</span></div>
     <div class="cifra"><span class="cifra__valor" id="c-base">…</span><span class="cifra__texto">personas en la base</span></div>
-    <div class="cifra"><span class="cifra__valor" id="c-externos">…</span><span class="cifra__texto">invitados registrados en línea</span></div>
+    <div class="cifra"><span class="cifra__valor" id="c-externos">…</span><span class="cifra__texto" id="c-externos-texto">registrados en línea</span></div>
   </section>
 
   <div class="rejilla">
@@ -105,7 +105,8 @@ async function refrescar() {
     $('#c-ingresos').textContent = num(e.ingresos);
     $('#c-15').textContent = num(e.ultimos_15_min);
     $('#c-base').textContent = num(e.base);
-    $('#c-externos').textContent = num(e.externos_registrados);
+    $('#c-externos').textContent = num((e.externos_registrados || 0) + (e.uceva_autorregistro || 0));
+    $('#c-externos-texto').textContent = `registrados en línea: ${num(e.externos_registrados)} invitados y ${num(e.uceva_autorregistro)} de la UCEVA sin listar`;
     $('#por-tipo').innerHTML = barras(e.por_tipo, (k) => TIPOS[k] || k, true);
     $('#por-punto').innerHTML = barras(e.por_punto);
     $('#flujo').innerHTML = flujo(e.por_hora);
@@ -234,6 +235,7 @@ $('#btn-exportar').addEventListener('click', async () => {
     const filas = (await api.exportar()).map((f) => ({
       ...f, hora_ingreso: f.hora_ingreso ? new Date(f.hora_ingreso).toLocaleString('es-CO') : '',
       tipo_asistente: TIPOS[f.tipo_asistente] || f.tipo_asistente, sin_conexion: f.sin_conexion ? 'sí' : 'no',
+      origen: f.origen === 'registro' ? 'Autorregistro' : 'Base oficial',
     }));
     if (!filas.length) { $('#exportar-resultado').innerHTML = mensaje('aviso', 'Todavía no hay ingresos para descargar'); return; }
     descargarCSV(`asistencia-${CONFIG.evento.slug}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.csv`, filas,

@@ -180,8 +180,12 @@ begin
   );
 end $$;
 
--- Registro de personas externas a la institución.
-create or replace function public.registrar_externo(
+-- Autorregistro: invitados externos y miembros de la UCEVA que no aparecen
+-- en las bases institucionales (quedan con origen 'registro' para verificarlos).
+drop function if exists public.registrar_externo(text,text,text,text,text,text,text,text[],boolean,boolean);
+create or replace function public.registrar_persona(
+  p_tipo_asistente text,
+  p_dependencia    text,
   p_tipo_documento text,
   p_documento      text,
   p_nombres        text,
@@ -195,8 +199,15 @@ create or replace function public.registrar_externo(
 ) returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   v_doc text := public.normalizar_doc(p_documento);
+  v_tipo text := lower(trim(coalesce(p_tipo_asistente, 'externo')));
   p public.personas;
 begin
+  if v_tipo not in ('estudiante','docente','investigador','directivo','administrativo','egresado','externo') then
+    raise exception 'Elige tu relación con la UCEVA.' using errcode = 'P0001';
+  end if;
+  if v_tipo <> 'externo' and length(trim(coalesce(p_dependencia,''))) < 2 then
+    raise exception 'Escribe tu programa, facultad u oficina.' using errcode = 'P0001';
+  end if;
   if not coalesce(p_acepta_tratamiento, false) then
     raise exception 'Debes aceptar el tratamiento de datos para registrarte.' using errcode = 'P0001';
   end if;
@@ -215,12 +226,14 @@ begin
 
   insert into public.personas (
     tipo_documento, documento, nombres, apellidos, correo, celular,
-    tipo_asistente, entidad, poblacion,
+    tipo_asistente, dependencia, entidad, poblacion,
     acepta_tratamiento, acepta_datos_sensibles, origen
   ) values (
     coalesce(nullif(p_tipo_documento,''), 'CC'), v_doc, p_nombres, p_apellidos,
     p_correo, nullif(trim(coalesce(p_celular,'')), ''),
-    'externo', nullif(trim(coalesce(p_entidad,'')), ''),
+    v_tipo,
+    case when v_tipo <> 'externo' then nullif(trim(coalesce(p_dependencia,'')), '') end,
+    case when v_tipo = 'externo' then nullif(trim(coalesce(p_entidad,'')), '') end,
     case when coalesce(p_acepta_datos_sensibles, false) then p_poblacion else null end,
     true, coalesce(p_acepta_datos_sensibles, false), 'registro'
   ) returning * into p;
@@ -294,6 +307,7 @@ begin
       'tipo_asistente', p.tipo_asistente,
       'dependencia', coalesce(p.dependencia, p.entidad),
       'documento', p.documento,
+      'origen', p.origen,
       'hora_previa', a.registrado_en,
       'punto_previo', a.punto
     );
@@ -305,6 +319,7 @@ begin
     'tipo_asistente', p.tipo_asistente,
     'dependencia', coalesce(p.dependencia, p.entidad),
     'documento', p.documento,
+    'origen', p.origen,
     'hora', a.registrado_en
   );
 end $$;
@@ -375,7 +390,7 @@ begin
   return coalesce((
     select jsonb_agg(jsonb_build_array(
       p.token, p.documento, p.nombres || ' ' || p.apellidos, p.tipo_asistente,
-      coalesce(p.dependencia, p.entidad), a.registrado_en))
+      coalesce(p.dependencia, p.entidad), a.registrado_en, p.origen))
     from public.personas p
     left join public.asistencias a on a.persona_id = p.id and a.evento_id = v_evento
   ), '[]'::jsonb);
@@ -392,7 +407,8 @@ begin
   return jsonb_build_object(
     'ingresos',  (select count(*) from public.asistencias where evento_id = v_evento),
     'base',      (select count(*) from public.personas),
-    'externos_registrados', (select count(*) from public.personas where origen = 'registro'),
+    'externos_registrados', (select count(*) from public.personas where origen = 'registro' and tipo_asistente = 'externo'),
+    'uceva_autorregistro',  (select count(*) from public.personas where origen = 'registro' and tipo_asistente <> 'externo'),
     'ultimos_15_min', (select count(*) from public.asistencias
                        where evento_id = v_evento and registrado_en > now() - interval '15 minutes'),
     'por_tipo', coalesce((
@@ -456,8 +472,8 @@ begin
         apellidos      = excluded.apellidos,
         correo         = coalesce(excluded.correo, personas.correo),
         celular        = coalesce(excluded.celular, personas.celular),
-        tipo_asistente = case when personas.origen = 'registro' then personas.tipo_asistente
-                              else excluded.tipo_asistente end,
+        tipo_asistente = excluded.tipo_asistente,   -- la base oficial prevalece
+        origen         = 'institucional',
         dependencia    = coalesce(excluded.dependencia, personas.dependencia);
       if (select creado_en = actualizado_en from public.personas where documento = v_doc) then
         nuevos := nuevos + 1;
@@ -513,7 +529,7 @@ revoke execute on all functions in schema public from public, anon, authenticate
 
 grant execute on function public.info_evento(text)       to anon, authenticated;
 grant execute on function public.consultar_persona(text) to anon, authenticated;
-grant execute on function public.registrar_externo(text,text,text,text,text,text,text,text[],boolean,boolean)
+grant execute on function public.registrar_persona(text,text,text,text,text,text,text,text,text,text[],boolean,boolean)
   to anon, authenticated;
 
 grant execute on function public.mi_perfil_staff()                       to authenticated;

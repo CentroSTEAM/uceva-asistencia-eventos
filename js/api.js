@@ -55,7 +55,8 @@ function crearSupabase() {
   return {
     demo: false,
     consultar: (documento) => rpc('consultar_persona', { p_documento: documento }),
-    registrarExterno: (d) => rpc('registrar_externo', {
+    registrarPersona: (d) => rpc('registrar_persona', {
+      p_tipo_asistente: d.tipo_asistente || 'externo', p_dependencia: d.dependencia || null,
       p_tipo_documento: d.tipo_documento, p_documento: d.documento, p_nombres: d.nombres,
       p_apellidos: d.apellidos, p_correo: d.correo, p_celular: d.celular, p_entidad: d.entidad,
       p_poblacion: d.poblacion?.length ? d.poblacion : null,
@@ -150,9 +151,12 @@ function crearDemo() {
       return p ? pasePublico(p) : { encontrado: false };
     },
 
-    async registrarExterno(d) {
+    async registrarPersona(d) {
       await espera(300);
       const doc = normalizarDoc(d.documento);
+      const tipo = d.tipo_asistente || 'externo';
+      if (!Object.keys(TIPOS).includes(tipo)) throw new ErrorApi('Elige tu relación con la UCEVA.');
+      if (tipo !== 'externo' && String(d.dependencia || '').trim().length < 2) throw new ErrorApi('Escribe tu programa, facultad u oficina.');
       if (!d.acepta_tratamiento) throw new ErrorApi('Debes aceptar el tratamiento de datos para registrarte.');
       if (doc.length < 4 || doc.length > 20) throw new ErrorApi('El número de documento no es válido.');
       const db = leer();
@@ -160,7 +164,7 @@ function crearDemo() {
       const p = {
         id: `p${Date.now()}`, token: nuevoToken(), tipo_documento: d.tipo_documento || 'CC', documento: doc,
         nombres: titulo(d.nombres), apellidos: titulo(d.apellidos), correo: d.correo || null, celular: d.celular || null,
-        tipo_asistente: 'externo', entidad: d.entidad || null,
+        tipo_asistente: tipo, dependencia: tipo !== 'externo' ? d.dependencia : null, entidad: tipo === 'externo' ? (d.entidad || null) : null,
         poblacion: d.acepta_datos_sensibles ? d.poblacion : null, origen: 'registro', creado_en: new Date().toISOString(),
       };
       db.personas.push(p); guardar(db);
@@ -183,7 +187,7 @@ function crearDemo() {
       const p = t ? db.personas.find((x) => x.token === t) : db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };
       const previo = db.asistencias.find((a) => a.persona_id === p.id);
-      const base = { nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente, dependencia: p.dependencia || p.entidad, documento: p.documento };
+      const base = { nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente, dependencia: p.dependencia || p.entidad, documento: p.documento, origen: p.origen };
       if (previo) return { estado: 'repetido', ...base, hora_previa: previo.registrado_en, punto_previo: previo.punto };
       const a = { persona_id: p.id, registrado_en: hora || new Date().toISOString(), punto, metodo: t ? 'qr' : 'documento', sin_conexion: !!sin_conexion };
       db.asistencias.push(a); guardar(db);
@@ -209,7 +213,7 @@ function crearDemo() {
     async padron() {
       exigir(); const db = leer();
       return db.personas.map((p) => [p.token, p.documento, `${p.nombres} ${p.apellidos}`, p.tipo_asistente,
-        p.dependencia || p.entidad || null, db.asistencias.find((a) => a.persona_id === p.id)?.registrado_en || null]);
+        p.dependencia || p.entidad || null, db.asistencias.find((a) => a.persona_id === p.id)?.registrado_en || null, p.origen]);
     },
 
     async estadisticas() {
@@ -220,7 +224,8 @@ function crearDemo() {
       const bloques = contar((a) => { const d = new Date(a.registrado_en); d.setMinutes(Math.floor(d.getMinutes() / 15) * 15, 0, 0); return d.toISOString(); });
       return {
         ingresos: db.asistencias.length, base: db.personas.length,
-        externos_registrados: db.personas.filter((p) => p.origen === 'registro').length,
+        externos_registrados: db.personas.filter((p) => p.origen === 'registro' && p.tipo_asistente === 'externo').length,
+        uceva_autorregistro: db.personas.filter((p) => p.origen === 'registro' && p.tipo_asistente !== 'externo').length,
         ultimos_15_min: db.asistencias.filter((a) => new Date(a.registrado_en).getTime() > hace15).length,
         por_tipo: contar((a) => porId[a.persona_id]?.tipo_asistente || 'externo'),
         por_punto: contar((a) => a.punto || 'Sin punto'),
@@ -239,7 +244,7 @@ function crearDemo() {
         const p = db.personas.find((x) => x.documento === doc);
         const datos = { nombres: titulo(f.nombres), apellidos: titulo(f.apellidos), dependencia: f.dependencia || p?.dependencia || null,
           correo: f.correo || p?.correo || null, celular: f.celular || p?.celular || null };
-        if (p) { Object.assign(p, datos); if (p.origen !== 'registro') p.tipo_asistente = tipo; actualizados++; }
+        if (p) { Object.assign(p, datos, { tipo_asistente: tipo, origen: 'institucional' }); actualizados++; }
         else { db.personas.push({ id: `p${Date.now()}${i}`, token: nuevoToken(), tipo_documento: (f.tipo_documento || 'CC').toUpperCase(),
           documento: doc, tipo_asistente: tipo, origen: 'institucional', creado_en: new Date().toISOString(), ...datos }); nuevos++; }
       });

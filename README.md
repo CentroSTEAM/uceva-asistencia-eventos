@@ -7,7 +7,7 @@ Plataforma web para registrar la asistencia a eventos institucionales de la UCEV
 | Página | Para quién | Qué hace |
 |---|---|---|
 | `index.html` | Público | Consulta por documento si la persona está en la lista y le entrega su **pase con código QR**. |
-| `registro.html` | Invitados externos | Formulario de registro con autorización de datos (Ley 1581 de 2012). Al terminar entrega el pase. |
+| `registro.html` | Invitados y miembros de la UCEVA que no aparecen en las bases | Formulario de registro con autorización de datos (Ley 1581 de 2012). Al terminar entrega el pase. Quien se registra como miembro de la UCEVA queda marcado como *autorregistro*: en la puerta se le pide el carné y, si luego aparece en una base oficial, prevalecen los datos de la dependencia. |
 | `ingreso.html` | Personal de logística | Escáner de QR con la cámara del celular y búsqueda por documento o nombre. Funciona **sin internet** usando una copia local del padrón. |
 | `panel.html` | Administradores | Asistencia en vivo, carga de las bases que envían las dependencias (CSV) y descarga del listado de asistentes. |
 

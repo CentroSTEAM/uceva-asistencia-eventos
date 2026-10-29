@@ -181,7 +181,7 @@ sincronizar();
 function registrarLocal({ token, documento }) {
   const f = token ? porToken.get(token) : porDoc.get(documento);
   if (!f) return { estado: 'no_encontrado', local: true };
-  const base = { nombre: f[2], tipo_asistente: f[3], dependencia: f[4], documento: f[1], local: true };
+  const base = { nombre: f[2], tipo_asistente: f[3], dependencia: f[4], documento: f[1], origen: f[6], local: true };
   if (f[5]) return { estado: 'repetido', ...base, hora_previa: f[5] };
   const hora = new Date().toISOString();
   f[5] = hora; guardarLS(LS.padron, padron);
@@ -240,11 +240,14 @@ function mostrarVeredicto(r) {
   const det = [];
   if (r.tipo_asistente) det.push(TIPOS[r.tipo_asistente] || r.tipo_asistente);
   if (r.dependencia) det.push(r.dependencia);
-  let detalle = det.join(', ');
+  let detalle = esc(det.join(', '));
   if (r.estado === 'repetido') detalle += `<br>Entró a las ${horaCorta(r.hora_previa)}${r.punto_previo ? ` por ${esc(r.punto_previo)}` : ''}. Verifica su documento.`;
   if (r.estado === 'no_encontrado') detalle = 'Búscalo por documento. Si no aparece, pídele que se registre como invitado en el celular y vuelve a escanear.';
+  const autorregistroUceva = r.origen === 'registro' && r.tipo_asistente && r.tipo_asistente !== 'externo';
+  if (autorregistroUceva && r.estado === 'ok') detalle += '<br><span class="veredicto__marca">Se registró en línea como miembro de la UCEVA: pide su carné.</span>';
   if (r.local && r.estado === 'ok') detalle += '<br><span class="veredicto__marca">Registrado sin internet: se enviará al volver la conexión.</span>';
-  $('#veredicto-detalle').innerHTML = r.estado === 'repetido' || r.estado === 'no_encontrado' || r.local ? detalle : esc(detalle);
+  $('#veredicto-detalle').innerHTML = detalle;
+  v.classList.toggle('veredicto--verificar', autorregistroUceva && r.estado === 'ok');
   v.hidden = false;
   sonar(r.estado === 'ok');
 
@@ -253,7 +256,7 @@ function mostrarVeredicto(r) {
     const cerrar = () => { clearTimeout(reloj); v.hidden = true; cerrarVeredicto = null; resolver(); };
     cerrarVeredicto = cerrar;
     $('#btn-seguir').onclick = cerrar;
-    if (r.estado === 'ok') { reloj = setTimeout(cerrar, 1700); v.onclick = cerrar; }
+    if (r.estado === 'ok' && !autorregistroUceva) { reloj = setTimeout(cerrar, 1700); v.onclick = cerrar; }
     else { v.onclick = null; $('#btn-seguir').focus(); }
   });
 }

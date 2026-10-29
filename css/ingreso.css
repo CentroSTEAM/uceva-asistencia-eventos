@@ -112,3 +112,5 @@
 .veredicto--error { background: radial-gradient(120% 80% at 50% 0%, #d8392f, #96180f); }
 .veredicto--aviso { background: radial-gradient(120% 80% at 50% 0%, #ffc94d, #f0a01a); }
 .veredicto__icono svg { filter: drop-shadow(0 8px 24px rgba(0,0,0,.18)); }
+
+.veredicto--ok.veredicto--verificar .veredicto__seguir { display: flex; }

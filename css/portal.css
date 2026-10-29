@@ -1,6 +1,6 @@
 /* ---------- Portada ---------- */
 
-.portada { position: relative; overflow: hidden; background: var(--blanco); border-bottom: 1px solid var(--linea); }
+.portada { position: relative; overflow: hidden; overflow: clip; background: var(--blanco); border-bottom: 1px solid var(--linea); }
 
 /* Aurora: manchas del espectro que se mueven muy despacio */
 .aurora { position: absolute; inset: -20% -10% auto; height: 120%; pointer-events: none; filter: blur(70px) saturate(1.15); opacity: .55; }
@@ -108,6 +108,23 @@
 @media (max-width: 600px) { .invitacion__caja .boton { width: 100%; } .invitacion__caja { padding: 2rem 1.4rem; } }
 
 /* ---------- Registro ---------- */
+
+.eleccion { display: grid; gap: .7rem; grid-template-columns: 1fr; margin-bottom: 1rem; }
+@media (min-width: 600px) { .eleccion { grid-template-columns: 1fr 1fr; } }
+.eleccion > .error-campo { grid-column: 1 / -1; }
+.eleccion__op {
+  position: relative; display: flex; gap: .8rem; align-items: flex-start; cursor: pointer;
+  padding: 1rem 1.1rem; border-radius: 20px; background: var(--blanco); border: 1.5px solid var(--linea-2);
+  transition: border-color .15s, box-shadow .2s, background-color .15s;
+}
+.eleccion__op:hover { border-color: #93a69b; }
+.eleccion__op input { width: 1.3rem; height: 1.3rem; margin: .15rem 0 0; flex: none; accent-color: var(--verde); }
+.eleccion__op strong { display: block; font-family: var(--display); font-size: var(--t-2); letter-spacing: -.02em; line-height: 1.15; margin-bottom: .25rem; }
+.eleccion__op small { display: block; font-size: var(--t-0); color: var(--tinta-2); line-height: 1.4; }
+.eleccion__op:has(input:checked) { border-color: transparent; background: linear-gradient(var(--blanco), var(--blanco)) padding-box, var(--espectro) border-box; border: 2px solid transparent; box-shadow: 0 10px 24px -14px rgba(59, 91, 255, .5); }
+.eleccion__op:has(input:focus-visible) { box-shadow: var(--foco); }
+.vinculo-uceva { margin-top: .2rem; }
+
 
 .registro-pagina { position: relative; z-index: 1; max-width: 76rem; margin: 0 auto; padding: 3rem 1.25rem 5rem; display: grid; gap: 2.5rem; grid-template-columns: 1fr; align-items: start; }
 @media (min-width: 960px) { .registro-pagina { grid-template-columns: minmax(0, 1fr) 23rem; gap: 4rem; padding-top: 4rem; } .registro-pagina .portada__pase { position: sticky; top: 6rem; } }
