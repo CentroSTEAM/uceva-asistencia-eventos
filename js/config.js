@@ -7,8 +7,8 @@
 // por diseño: la seguridad la ponen las funciones de supabase/schema.sql.
 
 export const CONFIG = {
-  SUPABASE_URL: '',
-  SUPABASE_ANON_KEY: '',
+  SUPABASE_URL: 'https://mhdsrvseaqygmqpywddn.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_QinhG52FJLfF0m-0wDN3tg_q4lnphv0',   // llave publicable (segura en el navegador)
 
   evento: {
     slug: 'noche-inclusion-2026',          // igual al de la tabla eventos
