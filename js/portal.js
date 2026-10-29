@@ -16,7 +16,7 @@ let paseActual = null;
 $('#chips').innerHTML = [
   [ICONOS.calendario, CONFIG.evento.fecha],
   [ICONOS.lugar, CONFIG.evento.lugar],
-  [ICONOS.boleta, 'Pasarela central'],
+  [ICONOS.boleta, CONFIG.evento.horario],
 ].filter(([, t]) => t).map(([i, t]) => `<li class="chip">${i}${esc(t)}</li>`).join('');
 document.querySelectorAll('[data-icono]').forEach((el) => { el.innerHTML = ICONOS[el.dataset.icono] || ''; });
 $('#btn-invitado').insertAdjacentHTML('beforeend', ICONOS.flecha);

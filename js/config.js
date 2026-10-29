@@ -14,8 +14,9 @@ export const CONFIG = {
     slug: 'noche-inclusion-2026',          // igual al de la tabla eventos
     nombre: 'Día de la Inclusión 2026',
     marco: 'IV Noche de Inclusión',
-    fecha: 'Jueves 5 de noviembre, 7:00 p. m.',
-    fechaISO: '2026-11-05T19:00:00-05:00',  // activa la cuenta regresiva
+    fecha: 'Jueves 5 de noviembre de 2026',
+    horario: '4:00 p. m. Bazar · 7:00 p. m. Pasarela',
+    fechaISO: '2026-11-05T16:00:00-05:00',  // activa la cuenta regresiva
     lugar: 'Coliseo Cerrado Carlos María Lozano',
   },
 
