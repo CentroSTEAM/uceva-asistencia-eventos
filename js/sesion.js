@@ -13,7 +13,7 @@ export async function exigirSesion(contenedor, { soloAdmin = false } = {}) {
   return new Promise((resolver) => {
     contenedor.innerHTML = `
       <section class="acceso" aria-labelledby="titulo-acceso">
-        <h1 id="titulo-acceso">${soloAdmin ? 'Panel del evento' : 'Ingreso al evento'}</h1>
+        <h1 id="titulo-acceso">${soloAdmin ? 'Panel del evento' : 'Escanear pases'}</h1>
         <p class="entrada">Solo para el personal ${soloAdmin ? 'administrador' : 'de logística'}. Usa el correo y la contraseña que te asignaron.</p>
         ${perfil && soloAdmin ? mensaje('aviso', 'Tu usuario no es administrador', 'Pide acceso a la coordinación del evento.') : ''}
         <form id="form-acceso" novalidate>

@@ -21,7 +21,7 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 export const $ = (sel, raiz = document) => raiz.querySelector(sel);
 
 export const ENLACES_PUBLICOS = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia']];
-export const ENLACES_PERSONAL = [['index.html', 'Portal'], ['asistir.html', 'Asistencia'], ['panel.html', 'Panel'], ['ingreso.html', 'Puerta']];
+export const ENLACES_PERSONAL = [['index.html', 'Portal'], ['asistir.html', 'Asistencia'], ['panel.html', 'Panel'], ['ingreso.html', 'Escáner']];
 
 export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
   // Si en este navegador hay alguien del personal con sesión, el menú público suma "Panel"
@@ -60,7 +60,7 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
     }
     const acceso = document.createElement('p');
     acceso.className = 'acceso-personal';
-    acceso.innerHTML = 'Personal del evento: <a href="panel.html">Panel</a> y <a href="ingreso.html">Puerta</a>';
+    acceso.innerHTML = 'Personal del evento: <a href="panel.html">Panel</a> y <a href="ingreso.html">Escanear QR</a>';
     pie.append(acceso);
   }
   const saltar = document.createElement('a');

@@ -62,3 +62,8 @@ input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; borde
 .cartel__qr { justify-self: center; width: min(15rem, 100%); padding: 1rem; border-radius: 20px; background: var(--blanco); border: 1px solid var(--linea); text-align: center; }
 .cartel__qr svg { width: 100%; height: auto; image-rendering: pixelated; }
 .cartel__codigo { margin: .6rem 0 0 !important; font-weight: 700; font-size: .72rem !important; overflow-wrap: anywhere; color: var(--tinta-2) !important; }
+
+.escaner-acceso { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.2rem; margin: .4rem 0 1rem; padding: 1rem 1.1rem; border-radius: 16px; background: #eeebf7; }
+.escaner-acceso strong { display: block; font-family: var(--display); letter-spacing: -.015em; }
+.escaner-acceso span { font-size: var(--t-0); color: var(--tinta-2); }
+.escaner-acceso > div { flex: 1 1 16rem; }

@@ -87,7 +87,7 @@ form.addEventListener('submit', async (e) => {
       mostrarPase(r);
       guardarUltimoPase({ ...r, documento: doc });
       resultado.innerHTML = mensaje('ok', `¡Estás en la lista, ${r.nombre.split(' ')[0]}!`,
-        'Guarda tu pase y muéstralo en la entrada, desde el celular o impreso.');
+        'Guarda tu pase. Al llegar puedes registrar tu asistencia tú mismo con tu cédula, o mostrar este QR al personal de la entrada para que lo escanee.');
       if (matchMedia('(max-width: 959px)').matches) contPase.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       mostrarPase(null);

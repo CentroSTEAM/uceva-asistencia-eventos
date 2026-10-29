@@ -38,6 +38,10 @@ raiz.innerHTML = `
         <button class="boton boton--claro" type="button" id="btn-cartel" disabled>${ICONOS.descargar} Descargar cartel</button>
         <button class="boton boton--claro" type="button" id="btn-copiar" disabled>Copiar enlace</button>
       </div>
+      <div class="escaner-acceso">
+        <div><strong>¿Alguien prefiere mostrar su pase?</strong><span>El personal de la entrada escanea el QR del pase con la cámara del celular.</span></div>
+        <a class="boton" href="ingreso.html">${ICONOS.camara} Abrir escáner de pases</a>
+      </div>
       <div id="cartel-msg" aria-live="polite"></div>
     </div>
     <div class="cartel__qr" id="cartel-qr"></div>
