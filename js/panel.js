@@ -30,14 +30,13 @@ raiz.innerHTML = `
   <section class="bloque cartel" aria-labelledby="t-cartel">
     <div class="cartel__info">
       <h2 id="t-cartel">Registro de asistencia</h2>
-      <p>Las personas escanean este código en la entrada con su celular y registran su asistencia con su documento. Ábrelo cuando empiece el evento y ciérralo al terminar.</p>
+      <p>Cada persona registra su asistencia con su cédula desde su celular: escaneando este código en la entrada o entrando a la página "Asistencia". Solo funciona mientras el registro esté abierto: ábrelo cuando empiece el evento y ciérralo al terminar.</p>
       <p class="cartel__estado" id="cartel-estado" role="status">…</p>
       <div class="cartel__botones">
         <button class="boton boton--verde" type="button" id="btn-abrir" disabled>…</button>
         <button class="boton boton--claro" type="button" id="btn-cartel" disabled>${ICONOS.descargar} Descargar cartel</button>
         <button class="boton boton--claro" type="button" id="btn-copiar" disabled>Copiar enlace</button>
       </div>
-      <p class="ayuda">¿Se filtró el código fuera del evento? <button class="enlace" type="button" id="btn-renovar" disabled>Cambiar código</button>. Los carteles impresos antes dejarán de funcionar.</p>
       <div id="cartel-msg" aria-live="polite"></div>
     </div>
     <div class="cartel__qr" id="cartel-qr"></div>
@@ -268,17 +267,17 @@ $('#btn-exportar').addEventListener('click', async () => {
 // ---------------------------------------------------------------------
 
 let cartel = null;
-const enlaceAsistir = () => new URL(`asistir.html?c=${encodeURIComponent(cartel.codigo)}`, location.href).href;
+const enlaceAsistir = () => new URL('asistir.html', location.href).href;
 
 function pintarCartel() {
   const abierto = cartel.abierta;
   $('#cartel-estado').className = `cartel__estado ${abierto ? 'cartel__estado--abierto' : ''}`;
-  $('#cartel-estado').innerHTML = `${abierto ? ICONOS.ok : ICONOS.aviso}<span><strong>${abierto ? 'Abierto' : 'Cerrado'}.</strong> ${abierto ? 'Quien escanee el código puede registrar su asistencia.' : 'El código funciona, pero todavía no deja registrar asistencia.'}</span>`;
+  $('#cartel-estado').innerHTML = `${abierto ? ICONOS.ok : ICONOS.aviso}<span><strong>${abierto ? 'Abierto' : 'Cerrado'}.</strong> ${abierto ? 'Las personas ya pueden registrar su asistencia con su cédula.' : 'Nadie puede registrar asistencia todavía. Ábrelo cuando empiece el evento.'}</span>`;
   $('#btn-abrir').textContent = abierto ? 'Cerrar registro' : 'Abrir registro de asistencia';
   $('#btn-abrir').classList.toggle('boton--verde', !abierto);
   $('#btn-abrir').classList.toggle('boton--claro', abierto);
-  $('#cartel-qr').innerHTML = `${svgDeTexto(enlaceAsistir(), 'Código QR para registrar asistencia')}<p class="cartel__codigo">Código ${esc(cartel.codigo)}</p>`;
-  ['#btn-abrir', '#btn-cartel', '#btn-copiar', '#btn-renovar'].forEach((s) => { $(s).disabled = false; });
+  $('#cartel-qr').innerHTML = `${svgDeTexto(enlaceAsistir(), 'Código QR para registrar asistencia')}<p class="cartel__codigo">${esc(enlaceAsistir().replace(/^https?:\/\//, ''))}</p>`;
+  ['#btn-abrir', '#btn-cartel', '#btn-copiar'].forEach((s) => { $(s).disabled = false; });
 }
 
 async function cargarCartel(abierta = null, renovar = false) {
@@ -291,14 +290,6 @@ $('#btn-copiar').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(enlaceAsistir()); $('#cartel-msg').innerHTML = mensaje('ok', 'Enlace copiado'); }
   catch { $('#cartel-msg').innerHTML = mensaje('info', 'Copia este enlace', esc(enlaceAsistir())); }
 });
-let confirmarRenovar = false;
-$('#btn-renovar').addEventListener('click', async (e) => {
-  if (!confirmarRenovar) { confirmarRenovar = true; e.currentTarget.textContent = '¿Seguro? Toca otra vez para cambiarlo'; return; }
-  confirmarRenovar = false; e.currentTarget.textContent = 'Cambiar código';
-  await cargarCartel(null, true);
-  $('#cartel-msg').innerHTML = mensaje('aviso', 'Código cambiado', 'Descarga e imprime el cartel nuevo.');
-});
-
 $('#btn-cartel').addEventListener('click', async () => {
   try { await document.fonts?.ready; } catch {}
   const W = 1240, H = 1754; const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
@@ -320,9 +311,9 @@ $('#btn-cartel').addEventListener('click', async () => {
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) g.fillRect(x0 + c * celda, y0 + r * celda, celda, celda);
   let y = y0 + lado + 110;
   g.font = `400 44px ${fuente}`; g.fillStyle = col('--tinta');
-  ['Abre la cámara de tu celular y apunta a este código.', 'Escribe tu número de documento y listo.'].forEach((t) => { g.fillText(t, W / 2, y, W - 160); y += 66; });
+  ['Abre la cámara de tu celular y apunta a este código.', 'Escribe tu cédula y toca Registrar. ¡Listo!'].forEach((t) => { g.fillText(t, W / 2, y, W - 160); y += 66; });
   g.font = `400 30px ${fuente}`; g.fillStyle = col('--tinta-2');
-  g.fillText(`Código ${cartel.codigo}`, W / 2, H - 90);
+  g.fillText(enlaceAsistir().replace(/^https?:\/\//, ''), W / 2, H - 90, W - 160);
   const a = document.createElement('a'); a.download = `cartel-asistencia-${CONFIG.evento.slug}.png`; a.href = cv.toDataURL('image/png');
   document.body.append(a); a.click(); a.remove();
 });

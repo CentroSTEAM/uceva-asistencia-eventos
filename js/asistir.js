@@ -5,7 +5,7 @@ import { api, TIPOS, normalizarDoc } from './api.js';
 import { CONFIG } from './config.js';
 import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js';
 
-montarBarra('asistir.html', [['index.html', 'Mi pase'], ['asistir.html' + location.search, 'Asistencia']]);
+montarBarra('asistir.html');
 
 const vista = $('#vista');
 $('#evento-nombre').textContent = CONFIG.evento.nombre;
@@ -93,12 +93,11 @@ function mostrarResultado(r, doc) {
     $('#btn-otra').addEventListener('click', () => vistaFormulario(doc));
     return;
   }
-  if (r.estado === 'cerrado') return vistaAviso('cerrado', 'El registro de asistencia aún no está abierto', 'Se abre cuando empiece el evento. Vuelve a escanear el código en un momento.');
+  if (r.estado === 'cerrado') return vistaAviso('cerrado', 'El registro de asistencia aún no está abierto', 'Se abre cuando empiece el evento. Vuelve a esta página en un momento. Mientras tanto puedes <a href="index.html">consultar tu pase</a>.');
   vistaAviso('error', 'Este código no es válido', 'Escanea el código QR del cartel que está en la entrada del evento.');
 }
 
 async function iniciar() {
-  if (!codigo) return vistaAviso('info', 'Escanea el código de la entrada', 'Para registrar tu asistencia, escanea con la cámara de tu celular el código QR del cartel que está en la entrada del evento.');
   try {
     const e = await api.estadoAsistencia(codigo);
     if (!e.codigo_valido) return mostrarResultado({ estado: 'codigo_invalido' });

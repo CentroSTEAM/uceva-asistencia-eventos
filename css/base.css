@@ -106,7 +106,9 @@ p { margin: 0 0 1em; max-width: 40em; }
 .barra nav a { padding: .45rem .95rem; border-radius: 999px; text-decoration: none; color: var(--tinta-2); font-weight: 700; font-size: var(--t-0); transition: background-color .2s, color .2s; }
 .barra nav a:hover { color: var(--tinta); }
 .barra nav a[aria-current="page"] { background: var(--blanco); color: var(--tinta); box-shadow: var(--sombra-1); }
+.barra nav a { white-space: nowrap; }
 @media (max-width: 560px) { .marca__texto span { display: none; } .barra nav a { padding: .45rem .7rem; } }
+@media (max-width: 440px) { .marca__texto { display: none; } .barra__dentro { gap: .5rem; padding-inline: 1rem; } .barra nav a { padding: .45rem .65rem; font-size: .8rem; } }
 
 .aviso-demo { background: var(--tinta); color: #e6ece8; font-size: .8rem; padding: .4rem 1rem; text-align: center; }
 .aviso-demo strong { color: var(--e-ambar); }

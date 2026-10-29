@@ -181,3 +181,12 @@
   font-family: var(--display); font-weight: 800; font-size: var(--t-3); letter-spacing: -.025em; color: var(--tinta) !important; }
 .asistir__nombre span { font-family: var(--fuente); font-weight: 700; font-size: var(--t-0); letter-spacing: 0; color: var(--tinta-2); }
 .enlace { font: inherit; background: none; border: 0; color: var(--verde); text-decoration: underline; text-underline-offset: .18em; cursor: pointer; padding: .5rem .2rem; }
+
+.aviso-asistencia { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; margin-top: 1.6rem; max-width: 36rem; padding: 1.1rem 1.25rem; border: 2px solid transparent;
+  background: linear-gradient(var(--blanco), var(--blanco)) padding-box, var(--espectro) border-box; }
+.aviso-asistencia > div { flex: 1 1 14rem; }
+.aviso-asistencia strong { font-family: var(--display); font-size: var(--t-2); letter-spacing: -.02em; }
+.aviso-asistencia p { margin: .1rem 0 0; font-size: var(--t-0); color: var(--tinta-2); }
+.aviso-asistencia__punto { width: .8rem; height: .8rem; border-radius: 50%; background: var(--e-verde); box-shadow: 0 0 0 0 rgba(0,184,107,.6); animation: pulso 2s infinite; }
+@keyframes pulso { 70% { box-shadow: 0 0 0 12px rgba(0,184,107,0); } 100% { box-shadow: 0 0 0 0 rgba(0,184,107,0); } }
+@media (max-width: 440px) { .aviso-asistencia .boton { width: 100%; } }

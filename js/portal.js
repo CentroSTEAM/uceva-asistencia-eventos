@@ -42,6 +42,17 @@ if (CONFIG.evento.fechaISO) {
   pintar(); setInterval(pintar, 30000);
 }
 
+// Si el registro de asistencia está abierto, se muestra de primero.
+api.estadoAsistencia('').then((e) => {
+  if (!e?.abierta) return;
+  const caja = $('#aviso-asistencia');
+  caja.className = 'aviso-asistencia tarjeta';
+  caja.innerHTML = `<span class="aviso-asistencia__punto" aria-hidden="true"></span>
+    <div><strong>¿Ya estás en el evento?</strong><p>Registra tu asistencia con tu cédula. Toma un segundo.</p></div>
+    <a class="boton boton--verde" href="asistir.html">Registrar mi asistencia</a>`;
+  caja.hidden = false;
+}).catch(() => {});
+
 function mostrarPase(p) {
   paseActual = p;
   contPase.innerHTML = p ? htmlPase(p) : htmlPaseVacio();

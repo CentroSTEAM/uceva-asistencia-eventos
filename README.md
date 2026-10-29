@@ -8,7 +8,7 @@ Plataforma web para registrar la asistencia a eventos institucionales de la UCEV
 |---|---|---|
 | `index.html` | Público | Consulta por documento si la persona está en la lista y le entrega su **pase con código QR**. |
 | `registro.html` | Invitados y miembros de la UCEVA que no aparecen en las bases | Formulario de registro con autorización de datos (Ley 1581 de 2012). Al terminar entrega el pase. Quien se registra como miembro de la UCEVA queda marcado como *autorregistro*: en la puerta se le pide el carné y, si luego aparece en una base oficial, prevalecen los datos de la dependencia. |
-| `asistir.html` | Asistentes, en el evento | Se abre al escanear el **cartel QR de la entrada**. La persona escribe su documento (o confirma con un toque si ya consultó su pase en ese celular) y su asistencia queda registrada. Si no está en la lista, se registra ahí mismo y su asistencia se guarda al terminar. El administrador abre y cierra este registro desde el panel. |
+| `asistir.html` | Asistentes, en el evento | Se abre desde el menú **Asistencia**, desde el aviso de la página principal o escaneando el **cartel QR de la entrada**. La persona escribe su cédula (o confirma con un toque si ya consultó su pase en ese celular) y su asistencia queda registrada. Si no está en la lista, se registra ahí mismo y su asistencia se guarda al terminar. El administrador abre y cierra este registro desde el panel. |
 | `ingreso.html` | Personal de logística (opcional) | Escáner de QR con la cámara del celular y búsqueda por documento o nombre. Funciona **sin internet** usando una copia local del padrón. |
 | `panel.html` | Administradores | Asistencia en vivo, carga de las bases que envían las dependencias (CSV) y descarga del listado de asistentes. |
 
@@ -21,7 +21,7 @@ Mientras `js/config.js` no tenga los datos de Supabase, la plataforma funciona e
 ## Puesta en marcha con Supabase
 
 1. Crea una cuenta en [supabase.com](https://supabase.com) y un proyecto nuevo (plan gratuito, región `East US` o `South America`).
-2. En **SQL Editor**, pega el contenido de `supabase/schema.sql` y ejecútalo. (Si ya lo habías ejecutado antes del autoregistro, ejecuta además `supabase/migracion-002-autoasistencia.sql`.)
+2. En **SQL Editor**, pega el contenido de `supabase/schema.sql` y ejecútalo. (Si ya lo habías ejecutado antes, ejecuta además, en orden, `supabase/migracion-002-autoasistencia.sql` y `supabase/migracion-003-asistencia-simple.sql`.)
 3. En **Project Settings → API** copia *Project URL* y la llave *anon public* en `js/config.js`.
 4. Crea los usuarios del personal en **Authentication → Users → Add user** (correo y contraseña, marcando *Auto Confirm User*).
 5. Habilítalos como personal en **SQL Editor**:

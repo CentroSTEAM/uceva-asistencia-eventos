@@ -177,12 +177,11 @@ function crearDemo() {
 
     async estadoAsistencia(codigo) {
       await espera(100); const ev = leer().evento || { codigo: 'DEMO2026', abierta: true };
-      return { abierta: ev.abierta, codigo_valido: String(codigo || '').trim().toUpperCase() === ev.codigo, nombre: CONFIG.evento.nombre };
+      return { abierta: ev.abierta, codigo_valido: true, nombre: CONFIG.evento.nombre };
     },
     async registrarAsistencia(codigo, documento) {
       await espera(250);
       const db = leer(); const ev = db.evento || { codigo: 'DEMO2026', abierta: true };
-      if (String(codigo || '').trim().toUpperCase() !== ev.codigo) return { estado: 'codigo_invalido' };
       if (!ev.abierta) return { estado: 'cerrado' };
       const p = db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };

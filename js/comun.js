@@ -20,7 +20,7 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 
 export const $ = (sel, raiz = document) => raiz.querySelector(sel);
 
-export function montarBarra(actual, enlaces = [['index.html', 'Consultar'], ['registro.html', 'Registrarme']]) {
+export function montarBarra(actual, enlaces = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia']]) {
   const barra = document.createElement('header');
   barra.className = 'barra';
   barra.innerHTML = `
