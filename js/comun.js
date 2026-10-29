@@ -20,7 +20,7 @@ export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 
 export const $ = (sel, raiz = document) => raiz.querySelector(sel);
 
-export const ENLACES_PUBLICOS = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia']];
+export const ENLACES_PUBLICOS = [['index.html', 'Mi pase'], ['registro.html', 'Registro'], ['asistir.html', 'Asistencia'], ['ingreso.html', 'Personal']];
 export const ENLACES_PERSONAL = [['index.html', 'Portal'], ['asistir.html', 'Asistencia'], ['panel.html', 'Panel'], ['ingreso.html', 'Escáner']];
 
 export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
@@ -28,7 +28,7 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
   let personal = false;
   try { personal = !!localStorage.getItem('uceva-perfil'); } catch {}
   const publico = enlaces === ENLACES_PUBLICOS;
-  if (publico && personal) enlaces = [...ENLACES_PUBLICOS, ['panel.html', 'Panel']];
+  if (publico && personal) enlaces = [...ENLACES_PUBLICOS.slice(0, 3), ['panel.html', 'Panel']];
   const barra = document.createElement('header');
   barra.className = enlaces.length > 3 ? 'barra barra--densa' : 'barra';
   barra.innerHTML = `

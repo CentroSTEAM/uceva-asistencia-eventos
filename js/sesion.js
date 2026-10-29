@@ -13,8 +13,12 @@ export async function exigirSesion(contenedor, { soloAdmin = false } = {}) {
   return new Promise((resolver) => {
     contenedor.innerHTML = `
       <section class="acceso" aria-labelledby="titulo-acceso">
-        <h1 id="titulo-acceso">${soloAdmin ? 'Panel del evento' : 'Escanear pases'}</h1>
-        <p class="entrada">Solo para el personal ${soloAdmin ? 'administrador' : 'de logística'}. Usa el correo y la contraseña que te asignaron.</p>
+        <h1 id="titulo-acceso">${soloAdmin ? 'Panel del evento' : 'Acceso del personal'}</h1>
+        <p class="entrada">${soloAdmin ? 'Solo para administradores.' : 'Para el equipo de logística y la coordinación del evento.'} Entra con el correo y la contraseña que te asignaron.</p>
+        ${soloAdmin ? '' : `<ul class="roles">
+          <li><strong>Portero</strong><span>Escanea los pases y busca personas por cédula en la entrada.</span></li>
+          <li><strong>Administrador</strong><span>Además, ve el panel: estadísticas, abrir o cerrar el registro de asistencia, cargar bases y descargar el listado.</span></li>
+        </ul>`}
         ${perfil && soloAdmin ? mensaje('aviso', 'Tu usuario no es administrador', 'Pide acceso a la coordinación del evento.') : ''}
         <form id="form-acceso" novalidate>
           <div id="acceso-error" aria-live="assertive"></div>

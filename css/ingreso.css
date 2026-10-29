@@ -114,3 +114,8 @@
 .veredicto__icono svg { filter: drop-shadow(0 8px 24px rgba(0,0,0,.18)); }
 
 .veredicto--ok.veredicto--verificar .veredicto__seguir { display: flex; }
+
+.roles { list-style: none; padding: 0; margin: 0 0 1.4rem; display: grid; gap: .5rem; }
+.roles li { padding: .7rem .9rem; border-radius: 14px; background: var(--fondo); font-size: var(--t-0); }
+.roles strong { display: block; font-family: var(--display); font-size: var(--t-1); letter-spacing: -.01em; }
+.roles span { color: var(--tinta-2); }
