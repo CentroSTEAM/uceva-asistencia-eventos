@@ -38,6 +38,10 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
           <img class="marca__55" src="img/uceva-55.png" alt="" width="175" height="159">
           <span class="marca__sep" aria-hidden="true"></span>
           <img class="marca__logo" src="img/logo-uceva.png" alt="UCEVA, Unidad Central del Valle del Cauca" width="511" height="163">
+          <span class="marca__sep" aria-hidden="true"></span>
+          <img class="marca__vips" src="img/vips-logo.png" alt="VIPS, Vicerrectoría de Investigación y Proyección Social" width="480" height="351">
+          <span class="marca__sep" aria-hidden="true"></span>
+          <span class="marca__steam"><img src="img/centro-steam.png" alt="" width="210" height="240"><span>Centro<br>STEAM+</span></span>
         </span>
       </a>
       <nav aria-label="Principal">
