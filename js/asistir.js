@@ -24,10 +24,31 @@ function vistaAviso(icono, titulo, texto) {
     <h1>${esc(titulo)}</h1><p>${texto}</p></div>`);
 }
 
+// Lista desplegable con las actividades vigentes (las que no han terminado)
+let actividadElegida = null;
+async function cargarActividades() {
+  try {
+    const lista = await api.actividadesVigentes();
+    const caja = $('#caja-actividad'); const sel = $('#actividad');
+    if (!caja || !lista.length) return;
+    const hora = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
+    const previa = lista.find((a) => String(a.id) === String(actividadElegida));
+    const defecto = previa || lista.find((a) => a.en_curso) || lista[0];
+    sel.innerHTML = lista.map((a) => `<option value="${a.id}"${a === defecto ? ' selected' : ''}>${esc(a.nombre)} · ${a.en_curso ? 'en curso' : `desde las ${hora(a.inicio)}`}</option>`).join('');
+    actividadElegida = defecto.id;
+    sel.addEventListener('change', () => { actividadElegida = sel.value; });
+    caja.hidden = false;
+  } catch { /* sin lista: la actividad se asigna por la hora */ }
+}
+
 function vistaFormulario(prefill = '') {
   const pase = ultimoPase();
   pintar(`
     <h1 class="titulo-espectro asistir__titulo">Registra tu asistencia</h1>
+    <div class="campo asistir__actividad" id="caja-actividad" hidden>
+      <label for="actividad">¿A qué actividad llegas?</label>
+      <select id="actividad"></select>
+    </div>
     ${pase ? `
       <div class="tarjeta asistir__rapido">
         <p class="ayuda">En este celular está guardado el pase de</p>
@@ -44,6 +65,7 @@ function vistaFormulario(prefill = '') {
       </div>
       <div id="error-form" aria-live="assertive"></div>
     </form>`);
+  cargarActividades();
   $('#btn-soy')?.addEventListener('click', (e) => enviar(null, e.currentTarget));
   $('#form-asistir').addEventListener('submit', (e) => { e.preventDefault(); enviar($('#documento').value, $('#btn-asistir')); });
 }
@@ -60,7 +82,7 @@ async function enviar(documentoEscrito, boton) {
   }
   const texto = boton.textContent; boton.disabled = true; boton.textContent = 'Registrando…';
   try {
-    const r = await api.registrarAsistencia(codigo, doc);
+    const r = await api.registrarAsistencia(codigo, doc, actividadElegida);
     mostrarResultado(r, doc);
   } catch (err) {
     boton.disabled = false; boton.textContent = texto;
@@ -96,6 +118,7 @@ function mostrarResultado(r, doc) {
     $('#btn-otra').addEventListener('click', () => vistaFormulario(doc));
     return;
   }
+  if (r.estado === 'actividad_invalida') return vistaAviso('aviso', 'Esa actividad ya terminó', 'Vuelve a la página de asistencia y elige una de las actividades que aparecen en la lista.');
   if (r.estado === 'cerrado') return vistaAviso('cerrado', 'El registro de asistencia aún no está abierto', 'Se abre cuando empiece el evento. Vuelve a esta página en un momento. Mientras tanto puedes <a href="index.html">consultar tu pase</a>.');
   vistaAviso('error', 'Este código no es válido', 'Escanea el código QR del cartel que está en la entrada del evento.');
 }

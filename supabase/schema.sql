@@ -976,10 +976,11 @@ grant execute on function public.limpiar_datos(text, text, text) to authenticate
 
 -- =====================================================================
 --  Migración 007: actividades con horario dentro del evento.
---  Cada ingreso queda asignado a la actividad que está en curso a esa hora
---  (por ejemplo, Bazar 4:00 p. m. y Pasarela 7:00 p. m.). Una persona puede
---  registrar asistencia una vez por actividad. Las actividades se crean y
---  editan desde el panel. Se puede ejecutar varias veces.
+--  Al registrar asistencia la persona (o el portero) elige la actividad en
+--  una lista que solo muestra las vigentes (las que no han terminado). Si no
+--  se elige, se asigna la que está en curso. Una persona puede registrar
+--  asistencia una vez por actividad. Las actividades se crean y editan desde
+--  el panel. Se puede ejecutar varias veces.
 -- =====================================================================
 
 create table if not exists public.actividades (
@@ -1023,6 +1024,29 @@ returns bigint language sql stable security definer set search_path = public as 
     (select id from public.actividades where evento_id = p_evento_id order by fin desc limit 1)
   )
 $$;
+
+-- Actividades que aún no terminan (para la lista desplegable de registro)
+create or replace function public.actividades_vigentes(p_evento text)
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'id', a.id, 'nombre', a.nombre, 'inicio', a.inicio, 'fin', a.fin, 'lugar', a.lugar,
+           'en_curso', now() >= a.inicio and now() < a.fin) order by a.inicio), '[]'::jsonb)
+    from public.actividades a
+   where a.evento_id = public.evento_id(p_evento) and a.fin > now()
+$$;
+
+-- Valida la actividad elegida; si no se eligió, usa la que corresponde a la hora
+create or replace function public.actividad_elegida(p_evento_id bigint, p_actividad bigint, p_hora timestamptz)
+returns bigint language plpgsql stable security definer set search_path = public as $$
+begin
+  if p_actividad is null then
+    return public.actividad_para(p_evento_id, p_hora);
+  end if;
+  if not exists (select 1 from public.actividades where id = p_actividad and evento_id = p_evento_id) then
+    raise exception 'La actividad elegida no existe.' using errcode = 'P0001';
+  end if;
+  return p_actividad;
+end $$;
 
 create or replace function public.listar_actividades(p_evento text)
 returns jsonb language plpgsql stable security definer set search_path = public as $$
@@ -1091,7 +1115,9 @@ end $$;
 
 -- ---------- Registro de ingresos con actividad ----------
 
-create or replace function public.registrar_asistencia(p_evento text, p_codigo text, p_documento text)
+drop function if exists public.registrar_asistencia(text, text, text);
+create or replace function public.registrar_asistencia(p_evento text, p_codigo text, p_documento text,
+                                                       p_actividad bigint default null)
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   e public.eventos;
@@ -1116,7 +1142,12 @@ begin
     return jsonb_build_object('estado', 'no_encontrado');
   end if;
 
-  v_act := public.actividad_para(e.id, now());
+  if p_actividad is not null and not exists (
+       select 1 from public.actividades where id = p_actividad and evento_id = e.id
+          and fin > now() - interval '30 minutes') then
+    return jsonb_build_object('estado', 'actividad_invalida');
+  end if;
+  v_act := public.actividad_elegida(e.id, p_actividad, now());
   select nombre into v_act_nombre from public.actividades where id = v_act;
 
   insert into public.asistencias (evento_id, persona_id, metodo, punto, actividad_id)
@@ -1137,13 +1168,15 @@ begin
     'tipo_asistente', p.tipo_asistente, 'hora', a.registrado_en, 'actividad', v_act_nombre);
 end $$;
 
+drop function if exists public.registrar_ingreso(text, text, text, text, timestamptz, boolean);
 create or replace function public.registrar_ingreso(
   p_evento    text,
   p_token     text default null,
   p_documento text default null,
   p_punto     text default null,
   p_hora      timestamptz default null,
-  p_sin_conexion boolean default false
+  p_sin_conexion boolean default false,
+  p_actividad bigint default null
 ) returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   v_evento bigint;
@@ -1173,7 +1206,7 @@ begin
     return jsonb_build_object('estado', 'no_encontrado');
   end if;
 
-  v_act := public.actividad_para(v_evento, v_hora);
+  v_act := public.actividad_elegida(v_evento, p_actividad, v_hora);
   select nombre into v_act_nombre from public.actividades where id = v_act;
 
   insert into public.asistencias (evento_id, persona_id, punto, metodo, registrado_por,
@@ -1210,6 +1243,29 @@ begin
     'hora', a.registrado_en,
     'actividad', v_act_nombre
   );
+end $$;
+
+create or replace function public.registrar_ingresos_lote(p_evento text, p_lote jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  item jsonb;
+  r jsonb;
+  resultados jsonb := '[]'::jsonb;
+begin
+  if not public.es_staff() then
+    raise exception 'No tienes permiso para registrar ingresos.' using errcode = '42501';
+  end if;
+  for item in select * from jsonb_array_elements(p_lote) loop
+    begin
+      r := public.registrar_ingreso(
+        p_evento, item->>'token', item->>'documento', item->>'punto',
+        (item->>'hora')::timestamptz, true, nullif(item->>'actividad', '')::bigint);
+    exception when others then
+      r := jsonb_build_object('estado', 'error', 'error', sqlerrm);
+    end;
+    resultados := resultados || jsonb_build_array(r || jsonb_build_object('id_local', item->'id_local'));
+  end loop;
+  return resultados;
 end $$;
 
 -- ---------- Consultas que cruzan personas con ingresos ----------
@@ -1357,6 +1413,13 @@ begin
 end $$;
 
 revoke execute on function public.actividad_para(bigint, timestamptz) from public;
+revoke execute on function public.actividad_elegida(bigint, bigint, timestamptz) from public;
+revoke execute on function public.registrar_asistencia(text, text, text, bigint) from public;
+revoke execute on function public.registrar_ingreso(text, text, text, text, timestamptz, boolean, bigint) from public;
+grant execute on function public.actividades_vigentes(text) to anon, authenticated;
+grant execute on function public.registrar_asistencia(text, text, text, bigint) to anon, authenticated;
+grant execute on function public.registrar_ingreso(text, text, text, text, timestamptz, boolean, bigint) to authenticated;
+grant execute on function public.registrar_ingresos_lote(text, jsonb) to authenticated;
 revoke execute on function public.listar_actividades(text) from public;
 revoke execute on function public.guardar_actividad(text, bigint, text, timestamptz, timestamptz, text) from public;
 revoke execute on function public.borrar_actividad(bigint) from public;

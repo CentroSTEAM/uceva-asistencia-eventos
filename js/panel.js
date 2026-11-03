@@ -51,7 +51,7 @@ raiz.innerHTML = `
   <section class="bloque actividades" aria-labelledby="t-act" id="seccion-actividades">
     <div class="actividades__cabeza">
       <div><h2 id="t-act">Actividades y horarios</h2>
-      <p>Cada ingreso se asigna a la actividad que está en curso a esa hora. Una persona puede registrar su asistencia una vez en cada actividad. Si alguien llega antes de que empiece la primera, queda en la próxima.</p></div>
+      <p>Al registrar su asistencia, cada persona (o el portero en el escáner) elige la actividad en una lista que solo muestra las que no han terminado. Una persona puede registrarse una vez en cada actividad.</p></div>
     </div>
     <div id="act-lista" class="act__lista"><p class="ayuda">Cargando…</p></div>
     <form id="form-act" class="act__form" novalidate>

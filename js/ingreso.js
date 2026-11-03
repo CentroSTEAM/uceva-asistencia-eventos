@@ -8,7 +8,7 @@ import { ENLACES_PERSONAL } from './comun.js';
 import { exigirSesion, salir } from './sesion.js';
 
 const raiz = $('#contenido');
-const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo' };
+const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo', actividad: 'uceva-actividad' };
 const leerLS = (k, def) => { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch { return def; } };
 const guardarLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const horaCorta = (iso) => iso ? new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' }) : '';
@@ -31,6 +31,7 @@ let cola = leerLS(LS.cola, []);
 let conteo = leerLS(LS.conteo, { fecha: new Date().toDateString(), n: 0 });
 if (conteo.fecha !== new Date().toDateString()) conteo = { fecha: new Date().toDateString(), n: 0 };
 let punto = localStorage.getItem(LS.punto) || CONFIG.puntos[0];
+let actividad = localStorage.getItem(LS.actividad) || null;
 
 // ---------------------------------------------------------------------
 //  Interfaz
@@ -44,6 +45,10 @@ raiz.innerHTML = `
         <select id="punto">${CONFIG.puntos.map((p) => `<option${p === punto ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select>
       </div>
       <p class="puesto__conteo"><strong id="conteo">${conteo.n}</strong><span>ingresos aquí</span></p>
+    </div>
+    <div class="campo campo--compacto puesto__actividad" id="caja-actividad" hidden>
+      <label for="actividad">Actividad que estás registrando</label>
+      <select id="actividad"></select>
     </div>
     <p class="puesto__estado" id="estado" role="status"></p>
   </div>
@@ -98,6 +103,23 @@ const el = {
 };
 
 $('#punto').addEventListener('change', (e) => { punto = e.target.value; localStorage.setItem(LS.punto, punto); });
+$('#actividad').addEventListener('change', (e) => { actividad = e.target.value; localStorage.setItem(LS.actividad, actividad); });
+
+// Actividades vigentes para la lista desplegable (se refresca cada minuto)
+async function cargarActividades() {
+  try {
+    const lista = await api.actividadesVigentes();
+    const sel = $('#actividad');
+    if (!lista.length) { $('#caja-actividad').hidden = true; actividad = null; return; }
+    const hora = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
+    const elegida = lista.find((a) => String(a.id) === String(actividad)) || lista.find((a) => a.en_curso) || lista[0];
+    actividad = String(elegida.id); localStorage.setItem(LS.actividad, actividad);
+    sel.innerHTML = lista.map((a) => `<option value="${a.id}"${a === elegida ? ' selected' : ''}>${esc(a.nombre)}${a.en_curso ? ' (en curso)' : ` (${hora(a.inicio)})`}</option>`).join('');
+    $('#caja-actividad').hidden = false;
+  } catch { /* sin conexión: se conserva la última elegida */ }
+}
+cargarActividades();
+setInterval(cargarActividades, 60000);
 $('#btn-salir').addEventListener('click', salir);
 $('#btn-padron').addEventListener('click', () => actualizarPadron(true));
 
@@ -186,7 +208,7 @@ function registrarLocal({ token, documento }) {
   if (f[5]) return { estado: 'repetido', ...base, hora_previa: f[5] };
   const hora = new Date().toISOString();
   f[5] = hora; guardarLS(LS.padron, padron);
-  cola.push({ id_local: Date.now() + Math.random(), token: token || null, documento: token ? null : documento, hora, punto });
+  cola.push({ id_local: Date.now() + Math.random(), token: token || null, documento: token ? null : documento, hora, punto, actividad });
   guardarLS(LS.cola, cola);
   return { estado: 'ok', ...base, hora };
 }
@@ -194,7 +216,7 @@ function registrarLocal({ token, documento }) {
 async function registrar({ token, documento }) {
   let r;
   try {
-    r = await api.registrarIngreso({ token, documento, punto });
+    r = await api.registrarIngreso({ token, documento, punto, actividad });
     const f = token ? porToken.get(token) : porDoc.get(r.documento || documento);
     if (f && r.estado === 'ok') { f[5] = r.hora; guardarLS(LS.padron, padron); }
   } catch (e) {

@@ -264,3 +264,6 @@
   .portada__pase { margin-top: 3rem; }
 }
 .titulo-evento--sobrio { font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4.6vw, 2.7rem); letter-spacing: -.03em; color: var(--tinta); margin-bottom: .8rem; }
+
+.asistir__actividad { margin: .4rem 0 1rem; text-align: left; }
+.asistir__actividad select { font-weight: 700; background-color: var(--blanco); border-color: var(--verde); }

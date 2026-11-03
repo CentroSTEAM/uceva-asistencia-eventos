@@ -119,3 +119,6 @@
 .roles li { padding: .7rem .9rem; border-radius: 14px; background: var(--fondo); font-size: var(--t-0); }
 .roles strong { display: block; font-family: var(--display); font-size: var(--t-1); letter-spacing: -.01em; }
 .roles span { color: var(--tinta-2); }
+
+.puesto__actividad { margin-top: .6rem; }
+.puesto__actividad select { font-weight: 700; border-color: var(--verde); }

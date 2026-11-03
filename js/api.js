@@ -64,7 +64,9 @@ function crearSupabase() {
     }),
 
     estadoAsistencia: (codigo) => rpc('estado_asistencia', { p_evento: EVENTO, p_codigo: codigo }),
-    registrarAsistencia: (codigo, documento) => rpc('registrar_asistencia', { p_evento: EVENTO, p_codigo: codigo, p_documento: documento }, { timeoutMs: 8000 }),
+    // p_actividad solo se envía si hay una elegida (compatible con bases sin la migración 007)
+    registrarAsistencia: (codigo, documento, actividad = null) => rpc('registrar_asistencia', { p_evento: EVENTO, p_codigo: codigo, p_documento: documento, ...(actividad ? { p_actividad: Number(actividad) } : {}) }, { timeoutMs: 8000 }),
+    actividadesVigentes: () => rpc('actividades_vigentes', { p_evento: EVENTO }, { timeoutMs: 6000 }),
     configAsistencia: (abierta = null, renovar = false) => rpc('config_asistencia', { p_evento: EVENTO, p_abierta: abierta, p_renovar: renovar }),
 
     async iniciarSesion(correo, clave) {
@@ -82,8 +84,8 @@ function crearSupabase() {
       catch (e) { if (e.sinConexion) return JSON.parse(localStorage.getItem('uceva-perfil') || 'null'); return null; }
     },
 
-    registrarIngreso: ({ token, documento, punto }) => rpc('registrar_ingreso', {
-      p_evento: EVENTO, p_token: token || null, p_documento: documento || null, p_punto: punto || null,
+    registrarIngreso: ({ token, documento, punto, actividad }) => rpc('registrar_ingreso', {
+      p_evento: EVENTO, p_token: token || null, p_documento: documento || null, p_punto: punto || null, ...(actividad ? { p_actividad: Number(actividad) } : {}),
     }, { timeoutMs: 4000 }),
     registrarLote: (lote) => rpc('registrar_ingresos_lote', { p_evento: EVENTO, p_lote: lote }, { timeoutMs: 20000 }),
     buscar: (texto) => rpc('buscar_personas', { p_evento: EVENTO, p_texto: texto }, { timeoutMs: 5000 }),
@@ -214,13 +216,19 @@ function crearDemo() {
       await espera(100); const ev = leer().evento || { codigo: 'DEMO2026', abierta: true };
       return { abierta: ev.abierta, codigo_valido: true, nombre: CONFIG.evento.nombre };
     },
-    async registrarAsistencia(codigo, documento) {
+    async actividadesVigentes() {
+      await espera(80); const db = leer(); const t = Date.now();
+      return [...actividadesDemo(db)].filter((a) => +new Date(a.fin) > t).sort((a, b) => new Date(a.inicio) - new Date(b.inicio))
+        .map((a) => ({ ...a, en_curso: t >= +new Date(a.inicio) }));
+    },
+    async registrarAsistencia(codigo, documento, actividad = null) {
       await espera(250);
       const db = leer(); const ev = db.evento || { codigo: 'DEMO2026', abierta: true };
       if (!ev.abierta) return { estado: 'cerrado' };
       const p = db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };
-      const act = actividadPara(db, Date.now());
+      const act = actividad ? actividadesDemo(db).find((x) => x.id === Number(actividad)) : actividadPara(db, Date.now());
+      if (actividad && !act) return { estado: 'actividad_invalida' };
       const previo = db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, act));
       const base = { nombre: nombrePublico(p.nombres, p.apellidos), tipo_asistente: p.tipo_asistente, actividad: act?.nombre || null };
       if (previo) return { estado: 'repetido', ...base, hora: previo.registrado_en };
@@ -244,13 +252,13 @@ function crearDemo() {
     async cerrarSesion() { sesion.set(null); },
     async perfil() { return sesion.get(); },
 
-    async registrarIngreso({ token, documento, punto, hora, sin_conexion }) {
+    async registrarIngreso({ token, documento, punto, hora, sin_conexion, actividad }) {
       exigir(); await espera(120);
       const db = leer();
       const t = limpiarToken(token);
       const p = t ? db.personas.find((x) => x.token === t) : db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };
-      const act = actividadPara(db, hora || Date.now());
+      const act = actividad ? actividadesDemo(db).find((x) => x.id === Number(actividad)) : actividadPara(db, hora || Date.now());
       const previo = db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, act));
       const base = { nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente, dependencia: p.dependencia || p.entidad, documento: p.documento, origen: p.origen, actividad: act?.nombre || null };
       if (previo) return { estado: 'repetido', ...base, hora_previa: previo.registrado_en, punto_previo: previo.punto };
