@@ -65,14 +65,32 @@ export const FACULTADES = [
 ];
 
 // Dependencias no académicas (para administrativos, directivos e investigadores).
-// PENDIENTE DE VALIDAR con Talento Humano: nombres oficiales y lista completa.
+// Tomadas de la planta de cargos de Gestión Humana (noviembre de 2026).
 export const DEPENDENCIAS = [
   'Rectoría',
   'Vicerrectoría Académica',
+  'Vicerrectoría Administrativa y Financiera',
+  'Vicerrectoría de Bienestar Universitario',
   'Vicerrectoría de Investigación y Proyección Social',
   'Centro STEAM+',
-  'Bienestar Universitario',
+  'Dirección de Internacionalización',
+  'Granja Tres Esquinas',
+  'Laboratorios Integrados',
+  'Oficina Asesora de Comunicaciones',
+  'Oficina Jurídica',
+  'Oficina de Control Disciplinario Interno',
+  'Oficina de Control Interno',
+  'Oficina de Educación Virtual y a Distancia',
+  'Oficina de Gestión Humana',
+  'Oficina de Informática y Telemática',
+  'Oficina de Planeación',
   'Secretaría General',
+  'Área de Admisiones y Registro Académico',
+  'Área de Almacén y Suministros',
+  'Área de Biblioteca y Documentación',
+  'Área de Gestión de Recursos Financieros',
+  'Área de Servicios Generales',
+  'Área de Tesorería',
 ];
 
 export const OTRA_DEPENDENCIA = 'Otra dependencia';
