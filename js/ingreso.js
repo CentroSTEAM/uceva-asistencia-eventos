@@ -1,11 +1,11 @@
 // Pantalla del personal en la puerta: escáner QR, búsqueda por documento
 // y respaldo sin conexión (padrón local + cola de sincronización).
 
-import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js';
-import { CONFIG, MODO_DEMO } from './config.js';
-import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js';
-import { ENLACES_PERSONAL } from './comun.js';
-import { exigirSesion, salir } from './sesion.js';
+import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261103e';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261103e';
+import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261103e';
+import { ENLACES_PERSONAL } from './comun.js?v=20261103e';
+import { exigirSesion, salir } from './sesion.js?v=20261103e';
 
 const raiz = $('#contenido');
 const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo', actividad: 'uceva-actividad' };

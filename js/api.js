@@ -1,7 +1,7 @@
 // Capa de datos. Las páginas solo hablan con este archivo, así que da igual
 // si detrás está Supabase o el modo demostración.
 
-import { CONFIG, MODO_DEMO } from './config.js';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261103e';
 
 const EVENTO = CONFIG.evento.slug;
 
