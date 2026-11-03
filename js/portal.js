@@ -1,5 +1,6 @@
 import { api, normalizarDoc } from './api.js';
 import { CONFIG } from './config.js';
+import { ofrecerActualizacion } from './actualizar.js';
 import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ultimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js';
 
 montarBarra('index.html');
@@ -86,11 +87,13 @@ form.addEventListener('submit', async (e) => {
     if (r?.encontrado) {
       mostrarPase(r);
       guardarUltimoPase({ ...r, documento: doc });
+      ofrecerActualizacion($('#actualizar'), doc);
       resultado.innerHTML = mensaje('ok', `¡Estás en la lista, ${r.nombre.split(' ')[0]}!`,
         'Guarda tu pase. Al llegar puedes registrar tu asistencia tú mismo con tu cédula, o mostrar este QR al personal de la entrada para que lo escanee.');
       if (matchMedia('(max-width: 959px)').matches) contPase.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
       mostrarPase(null);
+      $('#actualizar').innerHTML = '';
       resultado.innerHTML = mensaje('aviso', 'No encontramos ese documento',
         `Revisa que esté bien escrito. Si eres de la UCEVA, tu dependencia puede no haber enviado la lista todavía; en ese caso, o si eres invitado, regístrate ahora.
          <br><a class="boton boton--verde" href="registro.html?doc=${encodeURIComponent(doc)}">Registrarme ${ICONOS.flecha}</a>`);

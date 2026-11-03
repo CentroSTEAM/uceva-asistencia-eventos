@@ -306,13 +306,14 @@ $('#btn-exportar-inscritos').addEventListener('click', async () => {
     const filas = (await api.exportarPersonas()).map((f) => ({
       ...f, inscrito_en: f.inscrito_en ? new Date(f.inscrito_en).toLocaleString('es-CO') : '',
       hora_ingreso: f.hora_ingreso ? new Date(f.hora_ingreso).toLocaleString('es-CO') : '',
+      datos_actualizados_en: f.datos_actualizados_en ? new Date(f.datos_actualizados_en).toLocaleString('es-CO') : '',
       asistio: f.asistio ? 'sí' : 'no', tipo_asistente: TIPOS[f.tipo_asistente] || f.tipo_asistente,
       origen: f.origen === 'registro' ? 'Autorregistro' : 'Base oficial',
     }));
     if (!filas.length) { $('#exportar-resultado').innerHTML = mensaje('aviso', 'Todavía no hay personas inscritas'); return; }
     descargarCSV(`inscritos-${CONFIG.evento.slug}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.csv`, filas,
       ['tipo_documento', 'documento', 'nombres', 'apellidos', 'tipo_asistente', 'dependencia', 'entidad', 'correo', 'celular',
-        'origen', 'inscrito_en', 'asistio', 'hora_ingreso', 'poblacion']);
+        'origen', 'inscrito_en', 'asistio', 'hora_ingreso', 'poblacion', 'datos_actualizados_en']);
     $('#exportar-resultado').innerHTML = mensaje('ok', `Descargaste ${num(filas.length)} personas inscritas`);
   } catch (err) {
     $('#exportar-resultado').innerHTML = mensaje('error', 'No se pudo descargar', esc(err.message));

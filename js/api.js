@@ -92,6 +92,10 @@ function crearSupabase() {
     importar: (filas) => rpc('importar_personas', { p_filas: filas }, { timeoutMs: 60000 }),
     exportar: () => rpc('exportar_asistencia', { p_evento: EVENTO }, { timeoutMs: 60000 }),
     exportarPersonas: () => rpc('exportar_personas', { p_evento: EVENTO }, { timeoutMs: 60000 }),
+    actualizarDatos: (d) => rpc('actualizar_datos', {
+      p_documento: d.documento, p_celular: d.celular || null, p_poblacion: d.poblacion?.length ? d.poblacion : null,
+      p_acepta_tratamiento: !!d.acepta_tratamiento, p_acepta_datos_sensibles: !!d.acepta_datos_sensibles,
+    }),
     listarPersonal: () => rpc('listar_personal'),
     cambiarRol: (userId, rol) => rpc('cambiar_rol', { p_user_id: userId, p_rol: rol }),
     async gestionarPersonal(datos) {
@@ -310,7 +314,20 @@ function crearDemo() {
       return db.personas.map((p) => { const a = db.asistencias.find((x) => x.persona_id === p.id); return {
         tipo_documento: p.tipo_documento, documento: p.documento, nombres: p.nombres, apellidos: p.apellidos,
         tipo_asistente: p.tipo_asistente, dependencia: p.dependencia, entidad: p.entidad, correo: p.correo, celular: p.celular,
-        origen: p.origen, inscrito_en: p.creado_en, asistio: !!a, hora_ingreso: a?.registrado_en || null, poblacion: (p.poblacion || []).join('; ') }; });
+        origen: p.origen, inscrito_en: p.creado_en, asistio: !!a, hora_ingreso: a?.registrado_en || null, poblacion: (p.poblacion || []).join('; '),
+        datos_actualizados_en: p.datos_actualizados_en || null }; });
+    },
+    async actualizarDatos(d) {
+      await espera(300);
+      if (!d.acepta_tratamiento) throw new ErrorApi('Para actualizar tus datos debes autorizar su tratamiento.');
+      const db = leer(); const p = db.personas.find((x) => x.documento === normalizarDoc(d.documento));
+      if (!p) throw new ErrorApi('No encontramos ese documento.');
+      const cel = String(d.celular || '').replace(/\D/g, '');
+      if (cel && (cel.length < 7 || cel.length > 15)) throw new ErrorApi('El número de celular no es válido.');
+      if (cel) p.celular = cel;
+      if (d.acepta_datos_sensibles) p.poblacion = [...new Set((d.poblacion || []).map((x) => x.trim()).filter(Boolean))];
+      p.datos_actualizados_en = new Date().toISOString(); guardar(db);
+      return { ok: true };
     },
     async listarPersonal() {
       exigir(true); const db = leer(); const yo = sesion.get();

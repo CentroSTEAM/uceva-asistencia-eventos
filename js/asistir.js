@@ -3,6 +3,7 @@
 
 import { api, TIPOS, normalizarDoc } from './api.js';
 import { CONFIG } from './config.js';
+import { ofrecerActualizacion } from './actualizar.js';
 import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js';
 
 montarBarra('asistir.html');
@@ -79,7 +80,9 @@ function mostrarResultado(r, doc) {
       <p class="asistir__confirma">${r.estado === 'ok' ? 'Tu asistencia quedó registrada' : 'Tu asistencia ya estaba registrada'} a las <strong>${hora(r.hora)}</strong></p>
       <p class="asistir__nombre">${esc(r.nombre)}<span>${esc(TIPOS[r.tipo_asistente] || '')}</span></p>
       <p class="ayuda">Disfruta el ${esc(CONFIG.evento.nombre)}. Si el personal te lo pide, muestra esta pantalla.</p>
-    </div>`);
+    </div>
+    <div id="actualizar-datos"></div>`);
+    ofrecerActualizacion($('#actualizar-datos'), doc);
     return;
   }
   if (r.estado === 'no_encontrado') {
