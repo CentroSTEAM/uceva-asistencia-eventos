@@ -17,7 +17,7 @@ export const CONFIG = {
     fecha: 'Jueves 5 de noviembre de 2026',
     horario: '4:00 p. m. Bazar · 7:00 p. m. Pasarela',
     fechaISO: '2026-11-05T16:00:00-05:00',  // activa la cuenta regresiva
-    lugar: 'Coliseo Cerrado Carlos María Lozano',
+    lugar: 'Coliseo Cubierto Carlos María Lozano',
   },
 
   institucion: {

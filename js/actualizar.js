@@ -1,9 +1,9 @@
 // "Actualizar mis datos": la persona puede identificarse con un grupo
 // poblacional o comunidad y dejar su celular. Se ofrece después de consultar
 // el pase y después de registrar la asistencia.
-import { api } from './api.js?v=20261103f';
-import { CONFIG } from './config.js?v=20261103f';
-import { mensaje, esc, ICONOS } from './comun.js?v=20261103f';
+import { api } from './api.js?v=20261103g';
+import { CONFIG } from './config.js?v=20261103g';
+import { mensaje, esc, ICONOS } from './comun.js?v=20261103g';
 
 export const POBLACIONES = [
   'Persona con discapacidad',

@@ -1,7 +1,7 @@
 // Capa de datos. Las páginas solo hablan con este archivo, así que da igual
 // si detrás está Supabase o el modo demostración.
 
-import { CONFIG, MODO_DEMO } from './config.js?v=20261103f';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261103g';
 
 const EVENTO = CONFIG.evento.slug;
 
@@ -171,7 +171,7 @@ function crearDemo() {
   // Actividades del día (mismo criterio que actividad_para en la base de datos)
   const actividadesDemo = (db) => (db.actividades ||= [
     { id: 1, nombre: 'Bazar de emprendimientos inclusivos', inicio: '2026-11-05T16:00:00-05:00', fin: '2026-11-05T19:00:00-05:00', lugar: 'Exterior del Coliseo' },
-    { id: 2, nombre: 'IV Noche de Inclusión: pasarela central', inicio: '2026-11-05T19:00:00-05:00', fin: '2026-11-05T23:59:00-05:00', lugar: 'Coliseo Cerrado' },
+    { id: 2, nombre: 'IV Noche de Inclusión: pasarela central', inicio: '2026-11-05T19:00:00-05:00', fin: '2026-11-05T23:59:00-05:00', lugar: 'Coliseo Cubierto' },
   ]);
   const actividadPara = (db, hora) => {
     const t = new Date(hora).getTime(); const l = [...actividadesDemo(db)].sort((a, b) => new Date(a.inicio) - new Date(b.inicio));

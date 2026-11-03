@@ -1008,9 +1008,9 @@ insert into public.actividades (evento_id, nombre, inicio, fin, lugar)
 select e.id, x.nombre, x.inicio, x.fin, x.lugar
   from public.eventos e,
        (values ('Bazar de emprendimientos inclusivos', timestamptz '2026-11-05 16:00-05', timestamptz '2026-11-05 19:00-05',
-                'Exterior del Coliseo Cerrado Carlos María Lozano'),
+                'Exterior del Coliseo Cubierto Carlos María Lozano'),
                ('IV Noche de Inclusión: pasarela central', timestamptz '2026-11-05 19:00-05', timestamptz '2026-11-05 23:59-05',
-                'Coliseo Cerrado Carlos María Lozano')) as x(nombre, inicio, fin, lugar)
+                'Coliseo Cubierto Carlos María Lozano')) as x(nombre, inicio, fin, lugar)
  where e.slug = 'noche-inclusion-2026'
    and not exists (select 1 from public.actividades a where a.evento_id = e.id);
 
