@@ -105,3 +105,21 @@ input[type="file"] { font: inherit; font-size: var(--t-0); padding: .6rem; borde
   .personal__tabla select { width: 100%; }
   .personal__acciones { text-align: left; white-space: normal; }
 }
+
+/* ---------- Mantenimiento ---------- */
+.mantenimiento { margin-top: 1rem; }
+.mant__cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .6rem; margin: 1rem 0; }
+.mant__cifras div { padding: .8rem 1rem; border-radius: 14px; background: var(--fondo); }
+.mant__cifras dt { font-size: var(--t-0); color: var(--tinta-2); }
+.mant__cifras dd { margin: .1rem 0 0; font-family: var(--display); font-weight: 800; font-size: 1.5rem; }
+.mant__acciones { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
+.mant__acciones li { display: flex; gap: .6rem 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: .8rem 0; border-top: 1px solid var(--linea); }
+.mant__acciones strong { display: block; }
+.mant__acciones span { display: block; font-size: var(--t-0); color: var(--tinta-2); max-width: 38rem; }
+.mant__confirmar { margin-top: 1rem; padding: 1rem 1.1rem; border-radius: 16px; background: var(--error-fondo); }
+.mant__confirmar p { margin: 0 0 .7rem; }
+.mant__confirmar label { display: block; font-size: var(--t-0); margin-bottom: .4rem; }
+.mant__fila { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.mant__fila input { max-width: 12rem; text-transform: uppercase; letter-spacing: .08em; }
+.boton--rojo { background: var(--error); }
+.boton--rojo:hover { background: #8f1c15; }

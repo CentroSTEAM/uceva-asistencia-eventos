@@ -97,6 +97,8 @@ function crearSupabase() {
       p_acepta_tratamiento: !!d.acepta_tratamiento, p_acepta_datos_sensibles: !!d.acepta_datos_sensibles,
     }),
     listarPersonal: () => rpc('listar_personal'),
+    resumenDatos: () => rpc('resumen_datos', { p_evento: EVENTO }),
+    limpiarDatos: (que, confirmacion) => rpc('limpiar_datos', { p_evento: EVENTO, p_que: que, p_confirmacion: confirmacion }, { timeoutMs: 30000 }),
     cambiarRol: (userId, rol) => rpc('cambiar_rol', { p_user_id: userId, p_rol: rol }),
     async gestionarPersonal(datos) {
       if (!navigator.onLine) throw new ErrorApi('Sin conexión a internet.', { sinConexion: true });
@@ -328,6 +330,21 @@ function crearDemo() {
       if (d.acepta_datos_sensibles) p.poblacion = [...new Set((d.poblacion || []).map((x) => x.trim()).filter(Boolean))];
       p.datos_actualizados_en = new Date().toISOString(); guardar(db);
       return { ok: true };
+    },
+    async resumenDatos() {
+      exigir(true); const db = leer();
+      return { institucionales: db.personas.filter((p) => p.origen !== 'registro').length, autorregistros: db.personas.filter((p) => p.origen === 'registro').length,
+        actualizaron: db.personas.filter((p) => p.datos_actualizados_en).length, asistencias: db.asistencias.length };
+    },
+    async limpiarDatos(que, confirmacion) {
+      exigir(true); await espera(300);
+      if (confirmacion !== 'BORRAR') throw new ErrorApi('Escribe BORRAR para confirmar.');
+      const db = leer(); let n = 0;
+      if (que === 'asistencias') { n = db.asistencias.length; db.asistencias = []; }
+      else if (que === 'autorregistros') { const ids = new Set(db.personas.filter((p) => p.origen === 'registro').map((p) => p.id)); n = ids.size;
+        db.personas = db.personas.filter((p) => !ids.has(p.id)); db.asistencias = db.asistencias.filter((a) => !ids.has(a.persona_id)); }
+      else if (que === 'actualizaciones') { db.personas.forEach((p) => { if (p.origen !== 'registro' && (p.poblacion || p.datos_actualizados_en)) { n++; p.poblacion = null; p.datos_actualizados_en = null; } }); }
+      guardar(db); return { ok: true, afectados: n };
     },
     async listarPersonal() {
       exigir(true); const db = leer(); const yo = sesion.get();

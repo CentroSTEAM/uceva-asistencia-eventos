@@ -919,3 +919,57 @@ end $$;
 
 revoke execute on function public.actualizar_datos(text, text, text[], boolean, boolean) from public;
 grant execute on function public.actualizar_datos(text, text, text[], boolean, boolean) to anon, authenticated;
+
+-- =====================================================================
+--  Migración 006: mantenimiento desde el panel (solo administradores).
+--  Incluye la 005, así que basta con ejecutar este archivo.
+-- =====================================================================
+
+create or replace function public.resumen_datos(p_evento text)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare v_evento bigint := public.evento_id(p_evento);
+begin
+  if not public.es_admin() then
+    raise exception 'Solo un administrador puede ver este resumen.' using errcode = '42501';
+  end if;
+  return jsonb_build_object(
+    'institucionales', (select count(*) from public.personas where origen = 'institucional'),
+    'autorregistros',  (select count(*) from public.personas where origen = 'registro'),
+    'actualizaron',    (select count(*) from public.personas where datos_actualizados_en is not null),
+    'asistencias',     (select count(*) from public.asistencias where evento_id = v_evento)
+  );
+end $$;
+
+create or replace function public.limpiar_datos(p_evento text, p_que text, p_confirmacion text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  v_evento bigint := public.evento_id(p_evento);
+  v_n int := 0;
+begin
+  if not public.es_admin() then
+    raise exception 'Solo un administrador puede borrar datos.' using errcode = '42501';
+  end if;
+  if coalesce(p_confirmacion, '') <> 'BORRAR' then
+    raise exception 'Escribe BORRAR para confirmar.' using errcode = 'P0001';
+  end if;
+  if p_que = 'asistencias' then
+    delete from public.asistencias where evento_id = v_evento;
+    get diagnostics v_n = row_count;
+  elsif p_que = 'autorregistros' then
+    delete from public.personas where origen = 'registro';
+    get diagnostics v_n = row_count;
+  elsif p_que = 'actualizaciones' then
+    update public.personas
+       set poblacion = null, acepta_datos_sensibles = false, datos_actualizados_en = null
+     where origen = 'institucional' and (poblacion is not null or datos_actualizados_en is not null);
+    get diagnostics v_n = row_count;
+  else
+    raise exception 'Opción no válida.' using errcode = 'P0001';
+  end if;
+  return jsonb_build_object('ok', true, 'afectados', v_n);
+end $$;
+
+revoke execute on function public.resumen_datos(text) from public;
+revoke execute on function public.limpiar_datos(text, text, text) from public;
+grant execute on function public.resumen_datos(text) to authenticated;
+grant execute on function public.limpiar_datos(text, text, text) to authenticated;

@@ -118,11 +118,32 @@ raiz.innerHTML = `
     </form>
     <div id="personal-msg" aria-live="polite"></div>
     <div class="personal__tabla" id="personal-lista"><p class="ayuda">Cargando…</p></div>
+  </section>
+
+  <section class="bloque mantenimiento" aria-labelledby="t-mant" id="seccion-mantenimiento">
+    <h2 id="t-mant">Mantenimiento de datos</h2>
+    <p>Para dejar la plataforma limpia antes del evento. Estas acciones no se pueden deshacer y no tocan la base institucional cargada.</p>
+    <dl class="mant__cifras" id="mant-cifras"><div><dt>Cargando…</dt><dd>–</dd></div></dl>
+    <ul class="mant__acciones">
+      <li><div><strong>Vaciar asistencias</strong><span>Borra todos los ingresos registrados. Úsalo para quitar las pruebas antes de abrir el evento.</span></div>
+        <button type="button" class="boton boton--claro" data-limpiar="asistencias">Vaciar asistencias</button></li>
+      <li><div><strong>Borrar autorregistros</strong><span>Borra a quienes se registraron solos en el formulario, con sus ingresos.</span></div>
+        <button type="button" class="boton boton--claro" data-limpiar="autorregistros">Borrar autorregistros</button></li>
+      <li><div><strong>Reiniciar datos actualizados</strong><span>Quita el grupo poblacional y la marca de actualización de la base institucional (por ejemplo, después de probar).</span></div>
+        <button type="button" class="boton boton--claro" data-limpiar="actualizaciones">Reiniciar actualizaciones</button></li>
+    </ul>
+    <div id="mant-confirmar" hidden class="mant__confirmar">
+      <p id="mant-pregunta"></p>
+      <label for="mant-texto">Escribe <strong>BORRAR</strong> para confirmar</label>
+      <div class="mant__fila"><input id="mant-texto" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button type="button" class="boton boton--rojo" id="mant-si">Borrar</button><button type="button" class="enlace" id="mant-no">Cancelar</button></div>
+    </div>
+    <div id="mant-msg" aria-live="polite"></div>
   </section>`;
 
 if (!esAdmin) {
   // El rol consulta ve estadísticas y descargas, sin controles de administración.
-  ['.cartel', '#seccion-personal'].forEach((s) => $(s)?.remove());
+  ['.cartel', '#seccion-personal', '#seccion-mantenimiento'].forEach((s) => $(s)?.remove());
   $('[aria-labelledby="t-importar"]')?.remove();
 }
 
@@ -395,6 +416,45 @@ if (esAdmin) {
     }
   });
   pintarPersonal();
+  iniciarMantenimiento();
+}
+
+function iniciarMantenimiento() {
+  const ETIQUETAS = { institucionales: 'En la base institucional', autorregistros: 'Autorregistros', actualizaron: 'Actualizaron datos', asistencias: 'Asistencias registradas' };
+  const PREGUNTAS = {
+    asistencias: (r) => `Se borrarán <strong>${num(r.asistencias)}</strong> asistencias registradas.`,
+    autorregistros: (r) => `Se borrarán <strong>${num(r.autorregistros)}</strong> personas que se registraron solas, con sus ingresos.`,
+    actualizaciones: (r) => `Se quitará el grupo poblacional y la marca de actualización de <strong>${num(r.actualizaron)}</strong> personas de la base institucional.`,
+  };
+  let resumen = null, accion = null;
+  const caja = $('#mant-confirmar');
+  async function pintar() {
+    try {
+      resumen = await api.resumenDatos();
+      $('#mant-cifras').innerHTML = Object.entries(ETIQUETAS).map(([k, t]) => `<div><dt>${t}</dt><dd>${num(resumen[k])}</dd></div>`).join('');
+    } catch (err) {
+      $('#mant-cifras').innerHTML = '';
+      $('#mant-msg').innerHTML = mensaje('error', 'No se pudo cargar el resumen', `${esc(err.message)}${/function|resumen_datos/i.test(err.message) ? ' Ejecuta en Supabase la migración 006.' : ''}`);
+    }
+  }
+  document.querySelectorAll('[data-limpiar]').forEach((b) => b.addEventListener('click', () => {
+    accion = b.dataset.limpiar;
+    $('#mant-pregunta').innerHTML = resumen ? PREGUNTAS[accion](resumen) : 'Esta acción no se puede deshacer.';
+    caja.hidden = false; $('#mant-texto').value = ''; $('#mant-texto').focus(); $('#mant-msg').innerHTML = '';
+  }));
+  $('#mant-no').addEventListener('click', () => { caja.hidden = true; accion = null; });
+  $('#mant-si').addEventListener('click', async () => {
+    const btn = $('#mant-si'); btn.disabled = true;
+    try {
+      const r = await api.limpiarDatos(accion, $('#mant-texto').value.trim().toUpperCase());
+      caja.hidden = true;
+      $('#mant-msg').innerHTML = mensaje('ok', 'Listo', `${num(r.afectados)} registros afectados.`);
+      await pintar(); refrescar();
+    } catch (err) {
+      $('#mant-msg').innerHTML = mensaje('error', 'No se pudo borrar', esc(err.message));
+    } finally { btn.disabled = false; }
+  });
+  pintar();
 }
 
 // ---------------------------------------------------------------------
