@@ -1,15 +1,16 @@
 // Capa de datos. Las páginas solo hablan con este archivo, así que da igual
 // si detrás está Supabase o el modo demostración.
 
-import { CONFIG, MODO_DEMO } from './config.js?v=20261103g';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261103h';
 
 const EVENTO = CONFIG.evento.slug;
 
 export class ErrorApi extends Error {
-  constructor(mensaje, { sinConexion = false, permiso = false } = {}) {
+  constructor(mensaje, { sinConexion = false, permiso = false, temporal = false } = {}) {
     super(mensaje);
     this.sinConexion = sinConexion;
     this.permiso = permiso;
+    this.temporal = temporal;
   }
 }
 
@@ -32,12 +33,25 @@ function crearSupabase() {
     auth: { persistSession: true, autoRefreshToken: true },
   });
 
-  async function rpc(nombre, args = {}, { timeoutMs = 12000 } = {}) {
+  // Reintenta hasta 2 veces si el servidor responde con un error temporal (502, 503, 504).
+  // Es seguro: las operaciones de la plataforma no duplican datos si se repiten.
+  async function rpc(nombre, args = {}, opciones = {}) {
+    for (let intento = 0; ; intento++) {
+      try { return await rpcUnaVez(nombre, args, opciones); }
+      catch (e) {
+        if (!e.temporal || intento >= 2) throw e;
+        await new Promise((r) => setTimeout(r, 500 * (intento + 1) + Math.random() * 400));
+      }
+    }
+  }
+
+  async function rpcUnaVez(nombre, args = {}, { timeoutMs = 12000 } = {}) {
     if (!navigator.onLine) throw new ErrorApi('Sin conexión a internet.', { sinConexion: true });
     const ctrl = new AbortController();
     const reloj = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
-      const { data, error } = await cliente.rpc(nombre, args).abortSignal(ctrl.signal);
+      const { data, error, status } = await cliente.rpc(nombre, args).abortSignal(ctrl.signal);
+      if (error && status >= 502 && status <= 504) throw new ErrorApi('El servidor está ocupado. Inténtalo de nuevo.', { temporal: true });
       if (error) {
         if (error.code === '42501') throw new ErrorApi(error.message, { permiso: true });
         if (/fetch|network|abort/i.test(error.message || '')) throw new ErrorApi('No hay respuesta del servidor.', { sinConexion: true });
