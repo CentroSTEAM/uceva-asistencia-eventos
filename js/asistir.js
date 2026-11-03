@@ -1,10 +1,10 @@
 // Autoregistro de asistencia: la persona llega al evento, escanea el QR del
 // cartel con su celular y registra su asistencia con su documento.
 
-import { api, TIPOS, normalizarDoc } from './api.js?v=20261103e';
-import { CONFIG } from './config.js?v=20261103e';
-import { ofrecerActualizacion } from './actualizar.js?v=20261103e';
-import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261103e';
+import { api, TIPOS, normalizarDoc } from './api.js?v=20261103f';
+import { CONFIG } from './config.js?v=20261103f';
+import { ofrecerActualizacion } from './actualizar.js?v=20261103f';
+import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261103f';
 
 montarBarra('asistir.html');
 
@@ -34,7 +34,7 @@ async function cargarActividades() {
     const hora = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
     const previa = lista.find((a) => String(a.id) === String(actividadElegida));
     const defecto = previa || lista.find((a) => a.en_curso) || lista[0];
-    sel.innerHTML = lista.map((a) => `<option value="${a.id}"${a === defecto ? ' selected' : ''}>${esc(a.nombre)} · ${a.en_curso ? 'en curso' : `desde las ${hora(a.inicio)}`}</option>`).join('');
+    sel.innerHTML = lista.map((a) => `<option value="${a.id}"${a === defecto ? ' selected' : ''}>${esc(a.nombre)} · ${a.en_curso ? 'en curso' : `empieza a las ${hora(a.inicio)}`}</option>`).join('');
     actividadElegida = defecto.id;
     sel.addEventListener('change', () => { actividadElegida = sel.value; });
     caja.hidden = false;

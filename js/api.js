@@ -1,7 +1,7 @@
 // Capa de datos. Las páginas solo hablan con este archivo, así que da igual
 // si detrás está Supabase o el modo demostración.
 
-import { CONFIG, MODO_DEMO } from './config.js?v=20261103e';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261103f';
 
 const EVENTO = CONFIG.evento.slug;
 
@@ -218,7 +218,7 @@ function crearDemo() {
     },
     async actividadesVigentes() {
       await espera(80); const db = leer(); const t = Date.now();
-      return [...actividadesDemo(db)].filter((a) => +new Date(a.fin) > t).sort((a, b) => new Date(a.inicio) - new Date(b.inicio))
+      return [...actividadesDemo(db)].filter((a) => t >= +new Date(a.inicio) - 30 * 60e3 && t < +new Date(a.fin)).sort((a, b) => new Date(a.inicio) - new Date(b.inicio))
         .map((a) => ({ ...a, en_curso: t >= +new Date(a.inicio) }));
     },
     async registrarAsistencia(codigo, documento, actividad = null) {

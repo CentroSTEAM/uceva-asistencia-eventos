@@ -49,14 +49,16 @@ returns bigint language sql stable security definer set search_path = public as 
   )
 $$;
 
--- Actividades que aún no terminan (para la lista desplegable de registro)
+-- Actividades activas para la lista desplegable de registro: las que están en
+-- curso (o empiezan en los próximos 30 minutos, para quien llega un poco antes)
 create or replace function public.actividades_vigentes(p_evento text)
 returns jsonb language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object(
            'id', a.id, 'nombre', a.nombre, 'inicio', a.inicio, 'fin', a.fin, 'lugar', a.lugar,
            'en_curso', now() >= a.inicio and now() < a.fin) order by a.inicio), '[]'::jsonb)
     from public.actividades a
-   where a.evento_id = public.evento_id(p_evento) and a.fin > now()
+   where a.evento_id = public.evento_id(p_evento)
+     and now() >= a.inicio - interval '30 minutes' and now() < a.fin
 $$;
 
 -- Valida la actividad elegida; si no se eligió, usa la que corresponde a la hora
@@ -168,7 +170,7 @@ begin
 
   if p_actividad is not null and not exists (
        select 1 from public.actividades where id = p_actividad and evento_id = e.id
-          and fin > now() - interval '30 minutes') then
+          and now() >= inicio - interval '30 minutes' and now() < fin + interval '10 minutes') then
     return jsonb_build_object('estado', 'actividad_invalida');
   end if;
   v_act := public.actividad_elegida(e.id, p_actividad, now());

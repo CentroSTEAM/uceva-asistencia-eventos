@@ -1,11 +1,11 @@
 // Panel de administración: asistencia en vivo, carga de bases institucionales
 // y exportación del listado de asistentes.
 
-import { api, TIPOS } from './api.js?v=20261103e';
-import { CONFIG } from './config.js?v=20261103e';
-import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js?v=20261103e';
-import { ENLACES_PERSONAL } from './comun.js?v=20261103e';
-import { exigirSesion, salir } from './sesion.js?v=20261103e';
+import { api, TIPOS } from './api.js?v=20261103f';
+import { CONFIG } from './config.js?v=20261103f';
+import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js?v=20261103f';
+import { ENLACES_PERSONAL } from './comun.js?v=20261103f';
+import { exigirSesion, salir } from './sesion.js?v=20261103f';
 
 const raiz = $('#contenido');
 montarBarra('panel.html', ENLACES_PERSONAL);
@@ -51,7 +51,7 @@ raiz.innerHTML = `
   <section class="bloque actividades" aria-labelledby="t-act" id="seccion-actividades">
     <div class="actividades__cabeza">
       <div><h2 id="t-act">Actividades y horarios</h2>
-      <p>Al registrar su asistencia, cada persona (o el portero en el escáner) elige la actividad en una lista que solo muestra las que no han terminado. Una persona puede registrarse una vez en cada actividad.</p></div>
+      <p>Al registrar su asistencia, cada persona (o el portero en el escáner) elige la actividad en una lista que solo muestra las que están en curso (o empiezan en los próximos 30 minutos). Una persona puede registrarse una vez en cada actividad.</p></div>
     </div>
     <div id="act-lista" class="act__lista"><p class="ayuda">Cargando…</p></div>
     <form id="form-act" class="act__form" novalidate>
