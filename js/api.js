@@ -98,6 +98,9 @@ function crearSupabase() {
     }),
     listarPersonal: () => rpc('listar_personal'),
     resumenDatos: () => rpc('resumen_datos', { p_evento: EVENTO }),
+    listarActividades: () => rpc('listar_actividades', { p_evento: EVENTO }),
+    guardarActividad: (a) => rpc('guardar_actividad', { p_evento: EVENTO, p_id: a.id || null, p_nombre: a.nombre, p_inicio: a.inicio, p_fin: a.fin, p_lugar: a.lugar || null }),
+    borrarActividad: (id) => rpc('borrar_actividad', { p_id: id }),
     limpiarDatos: (que, confirmacion) => rpc('limpiar_datos', { p_evento: EVENTO, p_que: que, p_confirmacion: confirmacion }, { timeoutMs: 30000 }),
     cambiarRol: (userId, rol) => rpc('cambiar_rol', { p_user_id: userId, p_rol: rol }),
     async gestionarPersonal(datos) {
@@ -163,6 +166,16 @@ function crearDemo() {
     return s;
   };
 
+  // Actividades del día (mismo criterio que actividad_para en la base de datos)
+  const actividadesDemo = (db) => (db.actividades ||= [
+    { id: 1, nombre: 'Bazar de emprendimientos inclusivos', inicio: '2026-11-05T16:00:00-05:00', fin: '2026-11-05T19:00:00-05:00', lugar: 'Exterior del Coliseo' },
+    { id: 2, nombre: 'IV Noche de Inclusión: pasarela central', inicio: '2026-11-05T19:00:00-05:00', fin: '2026-11-05T23:59:00-05:00', lugar: 'Coliseo Cerrado' },
+  ]);
+  const actividadPara = (db, hora) => {
+    const t = new Date(hora).getTime(); const l = [...actividadesDemo(db)].sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+    return l.filter((a) => t >= +new Date(a.inicio) && t < +new Date(a.fin)).pop() || l.find((a) => +new Date(a.inicio) > t) || l[l.length - 1] || null;
+  };
+  const mismaAct = (a, act) => (a.actividad_id || 0) === (act?.id || 0);
   const pasePublico = (p) => ({
     encontrado: true, nombre: nombrePublico(p.nombres, p.apellidos), tipo_asistente: p.tipo_asistente,
     documento_fin: p.documento.slice(-4), token: p.token,
@@ -207,10 +220,11 @@ function crearDemo() {
       if (!ev.abierta) return { estado: 'cerrado' };
       const p = db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };
-      const previo = db.asistencias.find((a) => a.persona_id === p.id);
-      const base = { nombre: nombrePublico(p.nombres, p.apellidos), tipo_asistente: p.tipo_asistente };
+      const act = actividadPara(db, Date.now());
+      const previo = db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, act));
+      const base = { nombre: nombrePublico(p.nombres, p.apellidos), tipo_asistente: p.tipo_asistente, actividad: act?.nombre || null };
       if (previo) return { estado: 'repetido', ...base, hora: previo.registrado_en };
-      const a = { persona_id: p.id, registrado_en: new Date().toISOString(), punto: 'Celular (autoregistro)', metodo: 'autoregistro', sin_conexion: false };
+      const a = { persona_id: p.id, registrado_en: new Date().toISOString(), punto: 'Celular (autoregistro)', metodo: 'autoregistro', sin_conexion: false, actividad_id: act?.id || null };
       db.asistencias.push(a); guardar(db);
       return { estado: 'ok', ...base, hora: a.registrado_en };
     },
@@ -236,10 +250,11 @@ function crearDemo() {
       const t = limpiarToken(token);
       const p = t ? db.personas.find((x) => x.token === t) : db.personas.find((x) => x.documento === normalizarDoc(documento));
       if (!p) return { estado: 'no_encontrado' };
-      const previo = db.asistencias.find((a) => a.persona_id === p.id);
-      const base = { nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente, dependencia: p.dependencia || p.entidad, documento: p.documento, origen: p.origen };
+      const act = actividadPara(db, hora || Date.now());
+      const previo = db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, act));
+      const base = { nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente, dependencia: p.dependencia || p.entidad, documento: p.documento, origen: p.origen, actividad: act?.nombre || null };
       if (previo) return { estado: 'repetido', ...base, hora_previa: previo.registrado_en, punto_previo: previo.punto };
-      const a = { persona_id: p.id, registrado_en: hora || new Date().toISOString(), punto, metodo: t ? 'qr' : 'documento', sin_conexion: !!sin_conexion };
+      const a = { persona_id: p.id, registrado_en: hora || new Date().toISOString(), punto, metodo: t ? 'qr' : 'documento', sin_conexion: !!sin_conexion, actividad_id: act?.id || null };
       db.asistencias.push(a); guardar(db);
       return { estado: 'ok', ...base, hora: a.registrado_en };
     },
@@ -257,13 +272,13 @@ function crearDemo() {
         .filter((p) => (doc && p.documento.startsWith(doc)) || `${p.nombres} ${p.apellidos}`.toLowerCase().includes(t))
         .slice(0, 12)
         .map((p) => ({ documento: p.documento, nombre: `${p.nombres} ${p.apellidos}`, tipo_asistente: p.tipo_asistente,
-          dependencia: p.dependencia || p.entidad, ingreso: db.asistencias.find((a) => a.persona_id === p.id)?.registrado_en || null }));
+          dependencia: p.dependencia || p.entidad, ingreso: db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, actividadPara(db, Date.now())))?.registrado_en || null }));
     },
 
     async padron() {
       exigir(); const db = leer();
       return db.personas.map((p) => [p.token, p.documento, `${p.nombres} ${p.apellidos}`, p.tipo_asistente,
-        p.dependencia || p.entidad || null, db.asistencias.find((a) => a.persona_id === p.id)?.registrado_en || null, p.origen]);
+        p.dependencia || p.entidad || null, db.asistencias.find((a) => a.persona_id === p.id && mismaAct(a, actividadPara(db, Date.now())))?.registrado_en || null, p.origen]);
     },
 
     async estadisticas() {
@@ -273,11 +288,12 @@ function crearDemo() {
       const hace15 = Date.now() - 15 * 60e3;
       const bloques = contar((a) => { const d = new Date(a.registrado_en); d.setMinutes(Math.floor(d.getMinutes() / 15) * 15, 0, 0); return d.toISOString(); });
       return {
-        ingresos: db.asistencias.length, base: db.personas.length,
+        ingresos: new Set(db.asistencias.map((a) => a.persona_id)).size, registros: db.asistencias.length, base: db.personas.length,
+        por_actividad: contar((a) => actividadesDemo(db).find((x) => x.id === a.actividad_id)?.nombre || 'Sin actividad'),
         externos_registrados: db.personas.filter((p) => p.origen === 'registro' && p.tipo_asistente === 'externo').length,
         uceva_autorregistro: db.personas.filter((p) => p.origen === 'registro' && p.tipo_asistente !== 'externo').length,
         ultimos_15_min: db.asistencias.filter((a) => new Date(a.registrado_en).getTime() > hace15).length,
-        por_tipo: contar((a) => porId[a.persona_id]?.tipo_asistente || 'externo'),
+        por_tipo: [...new Set(db.asistencias.map((a) => a.persona_id))].reduce((m, id) => { const k = porId[id]?.tipo_asistente || 'externo'; m[k] = (m[k] || 0) + 1; return m; }, {}),
         por_punto: contar((a) => a.punto || 'Sin punto'),
         por_hora: Object.entries(bloques).sort().map(([hora, n]) => ({ hora, n })),
       };
@@ -305,7 +321,7 @@ function crearDemo() {
     async exportar() {
       exigir('consulta'); const db = leer(); const porId = Object.fromEntries(db.personas.map((p) => [p.id, p]));
       return db.asistencias.map((a) => { const p = porId[a.persona_id] || {}; return {
-        hora_ingreso: a.registrado_en, punto: a.punto, metodo: a.metodo, sin_conexion: a.sin_conexion,
+        hora_ingreso: a.registrado_en, actividad: actividadesDemo(db).find((x) => x.id === a.actividad_id)?.nombre || '', punto: a.punto, metodo: a.metodo, sin_conexion: a.sin_conexion,
         tipo_documento: p.tipo_documento, documento: p.documento, nombres: p.nombres, apellidos: p.apellidos,
         tipo_asistente: p.tipo_asistente, dependencia: p.dependencia, entidad: p.entidad, correo: p.correo,
         celular: p.celular, origen: p.origen, poblacion: (p.poblacion || []).join('; ') }; });
@@ -313,7 +329,8 @@ function crearDemo() {
 
     async exportarPersonas() {
       exigir('consulta'); const db = leer();
-      return db.personas.map((p) => { const a = db.asistencias.find((x) => x.persona_id === p.id); return {
+      return db.personas.map((p) => { const todas = db.asistencias.filter((x) => x.persona_id === p.id); const a = todas[0]; return {
+        actividades: todas.map((x) => actividadesDemo(db).find((y) => y.id === x.actividad_id)?.nombre || 'Sin actividad').join('; '),
         tipo_documento: p.tipo_documento, documento: p.documento, nombres: p.nombres, apellidos: p.apellidos,
         tipo_asistente: p.tipo_asistente, dependencia: p.dependencia, entidad: p.entidad, correo: p.correo, celular: p.celular,
         origen: p.origen, inscrito_en: p.creado_en, asistio: !!a, hora_ingreso: a?.registrado_en || null, poblacion: (p.poblacion || []).join('; '),
@@ -330,6 +347,27 @@ function crearDemo() {
       if (d.acepta_datos_sensibles) p.poblacion = [...new Set((d.poblacion || []).map((x) => x.trim()).filter(Boolean))];
       p.datos_actualizados_en = new Date().toISOString(); guardar(db);
       return { ok: true };
+    },
+    async listarActividades() {
+      exigir(); const db = leer(); const actual = actividadPara(db, Date.now()); const t = Date.now();
+      return [...actividadesDemo(db)].sort((a, b) => new Date(a.inicio) - new Date(b.inicio)).map((a) => ({ ...a,
+        actual: a.id === actual?.id, en_curso: t >= +new Date(a.inicio) && t < +new Date(a.fin),
+        ingresos: db.asistencias.filter((x) => x.actividad_id === a.id).length }));
+    },
+    async guardarActividad(a) {
+      exigir(true); await espera(200); const db = leer(); const l = actividadesDemo(db);
+      if (String(a.nombre || '').trim().length < 3) throw new ErrorApi('Escribe el nombre de la actividad.');
+      const i = +new Date(a.inicio), f = +new Date(a.fin);
+      if (!i || !f || f <= i) throw new ErrorApi('La hora de fin debe ser posterior a la de inicio.');
+      if (l.some((x) => x.id !== a.id && i < +new Date(x.fin) && f > +new Date(x.inicio))) throw new ErrorApi('Ese horario se cruza con otra actividad.');
+      if (a.id) Object.assign(l.find((x) => x.id === a.id), { nombre: a.nombre.trim(), inicio: a.inicio, fin: a.fin, lugar: a.lugar || null });
+      else l.push({ id: Math.max(0, ...l.map((x) => x.id)) + 1, nombre: a.nombre.trim(), inicio: a.inicio, fin: a.fin, lugar: a.lugar || null });
+      guardar(db); return { ok: true };
+    },
+    async borrarActividad(id) {
+      exigir(true); const db = leer();
+      if (db.asistencias.some((x) => x.actividad_id === id)) throw new ErrorApi('Esa actividad ya tiene ingresos registrados; no se puede borrar.');
+      db.actividades = actividadesDemo(db).filter((x) => x.id !== id); guardar(db); return { ok: true };
     },
     async resumenDatos() {
       exigir(true); const db = leer();

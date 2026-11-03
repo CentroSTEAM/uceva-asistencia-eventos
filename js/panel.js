@@ -48,7 +48,32 @@ raiz.innerHTML = `
     <div class="cartel__qr" id="cartel-qr"></div>
   </section>
 
+  <section class="bloque actividades" aria-labelledby="t-act" id="seccion-actividades">
+    <div class="actividades__cabeza">
+      <div><h2 id="t-act">Actividades y horarios</h2>
+      <p>Cada ingreso se asigna a la actividad que está en curso a esa hora. Una persona puede registrar su asistencia una vez en cada actividad. Si alguien llega antes de que empiece la primera, queda en la próxima.</p></div>
+    </div>
+    <div id="act-lista" class="act__lista"><p class="ayuda">Cargando…</p></div>
+    <form id="form-act" class="act__form" novalidate>
+      <h3 id="act-titulo-form">Nueva actividad</h3>
+      <div class="act__campos">
+        <div class="campo act__nombre"><label for="act-nombre">Nombre</label><input id="act-nombre" type="text" maxlength="90" placeholder="Bazar de emprendimientos inclusivos"></div>
+        <div class="campo"><label for="act-fecha">Fecha</label><input id="act-fecha" type="date"></div>
+        <div class="campo"><label for="act-ini">Empieza</label><input id="act-ini" type="time"></div>
+        <div class="campo"><label for="act-fin">Termina</label><input id="act-fin" type="time"></div>
+        <div class="campo act__lugar"><label for="act-lugar">Lugar <span class="opcional">Opcional</span></label><input id="act-lugar" type="text" maxlength="90"></div>
+      </div>
+      <div class="act__botones"><button class="boton boton--verde" type="submit" id="act-guardar">Agregar actividad</button>
+        <button class="enlace" type="button" id="act-cancelar" hidden>Cancelar edición</button></div>
+      <div id="act-msg" aria-live="polite"></div>
+    </form>
+  </section>
+
   <div class="rejilla">
+    <section class="bloque bloque--ancho" aria-labelledby="t-por-act">
+      <h2 id="t-por-act">Ingresos por actividad</h2>
+      <div id="por-actividad" class="barras"></div>
+    </section>
     <section class="bloque" aria-labelledby="t-tipo">
       <h2 id="t-tipo">Ingresos por tipo de asistente</h2>
       <div id="por-tipo" class="barras"></div>
@@ -143,7 +168,7 @@ raiz.innerHTML = `
 
 if (!esAdmin) {
   // El rol consulta ve estadísticas y descargas, sin controles de administración.
-  ['.cartel', '#seccion-personal', '#seccion-mantenimiento'].forEach((s) => $(s)?.remove());
+  ['.cartel', '#seccion-personal', '#seccion-mantenimiento', '#form-act'].forEach((s) => $(s)?.remove());
   $('[aria-labelledby="t-importar"]')?.remove();
 }
 
@@ -183,6 +208,7 @@ async function refrescar() {
     $('#c-externos-texto').textContent = `registrados en línea: ${num(e.externos_registrados)} invitados y ${num(e.uceva_autorregistro)} de la UCEVA sin listar`;
     $('#por-tipo').innerHTML = barras(e.por_tipo, (k) => TIPOS[k] || k, true);
     $('#por-punto').innerHTML = barras(e.por_punto);
+    $('#por-actividad').innerHTML = barras(e.por_actividad);
     $('#flujo').innerHTML = flujo(e.por_hora);
   } catch (err) {
     if (err.permiso) location.reload();
@@ -313,7 +339,7 @@ $('#btn-exportar').addEventListener('click', async () => {
     }));
     if (!filas.length) { $('#exportar-resultado').innerHTML = mensaje('aviso', 'Todavía no hay ingresos para descargar'); return; }
     descargarCSV(`asistencia-${CONFIG.evento.slug}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.csv`, filas,
-      ['hora_ingreso', 'punto', 'metodo', 'sin_conexion', 'tipo_documento', 'documento', 'nombres', 'apellidos', 'tipo_asistente',
+      ['hora_ingreso', 'actividad', 'punto', 'metodo', 'sin_conexion', 'tipo_documento', 'documento', 'nombres', 'apellidos', 'tipo_asistente',
         'dependencia', 'entidad', 'correo', 'celular', 'origen', 'poblacion']);
     $('#exportar-resultado').innerHTML = mensaje('ok', `Descargaste ${num(filas.length)} registros`);
   } catch (err) {
@@ -334,7 +360,7 @@ $('#btn-exportar-inscritos').addEventListener('click', async () => {
     if (!filas.length) { $('#exportar-resultado').innerHTML = mensaje('aviso', 'Todavía no hay personas inscritas'); return; }
     descargarCSV(`inscritos-${CONFIG.evento.slug}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.csv`, filas,
       ['tipo_documento', 'documento', 'nombres', 'apellidos', 'tipo_asistente', 'dependencia', 'entidad', 'correo', 'celular',
-        'origen', 'inscrito_en', 'asistio', 'hora_ingreso', 'poblacion', 'datos_actualizados_en']);
+        'origen', 'inscrito_en', 'asistio', 'hora_ingreso', 'actividades', 'poblacion', 'datos_actualizados_en']);
     $('#exportar-resultado').innerHTML = mensaje('ok', `Descargaste ${num(filas.length)} personas inscritas`);
   } catch (err) {
     $('#exportar-resultado').innerHTML = mensaje('error', 'No se pudo descargar', esc(err.message));
@@ -514,3 +540,80 @@ $('#btn-cartel').addEventListener('click', async () => {
 });
 
 if (esAdmin) cargarCartel();
+
+// ---------------------------------------------------------------------
+//  Actividades y horarios
+// ---------------------------------------------------------------------
+
+const ZONA = 'America/Bogota';
+const fechaLarga = (iso) => new Date(iso).toLocaleDateString('es-CO', { timeZone: ZONA, weekday: 'long', day: 'numeric', month: 'long' });
+const horaCol = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: ZONA, hour: 'numeric', minute: '2-digit' });
+const partesCol = (iso) => { // fecha y hora en Colombia para llenar el formulario
+  const d = new Date(new Date(iso).getTime() - 5 * 3600e3).toISOString();
+  return { fecha: d.slice(0, 10), hora: d.slice(11, 16) };
+};
+let actividades = [], editando = null;
+
+async function pintarActividades() {
+  try {
+    actividades = await api.listarActividades();
+    $('#act-lista').innerHTML = actividades.length ? `<ul>${actividades.map((a) => `
+      <li class="act${a.en_curso ? ' act--curso' : ''}">
+        <div class="act__info">
+          <strong>${esc(a.nombre)}</strong>
+          <span>${esc(fechaLarga(a.inicio))} · ${esc(horaCol(a.inicio))} a ${esc(horaCol(a.fin))}${a.lugar ? ` · ${esc(a.lugar)}` : ''}</span>
+        </div>
+        <div class="act__estado">
+          ${a.en_curso ? '<span class="etiqueta etiqueta--ok">En curso</span>' : a.actual ? '<span class="etiqueta">Siguiente</span>' : ''}
+          <span class="act__n">${num(a.ingresos)} ingresos</span>
+          ${esAdmin ? `<button type="button" class="enlace" data-editar="${a.id}">Editar</button>
+            <button type="button" class="enlace enlace--peligro" data-borrar="${a.id}">Borrar</button>` : ''}
+        </div>
+      </li>`).join('')}</ul>` : mensaje('aviso', 'No hay actividades', 'Mientras no haya actividades, cada persona registra una sola asistencia para todo el evento.');
+  } catch (err) {
+    $('#act-lista').innerHTML = mensaje('error', 'No se pudieron cargar las actividades', `${esc(err.message)}${/function|listar_actividades/i.test(err.message) ? ' Ejecuta en Supabase la migración 007.' : ''}`);
+  }
+}
+
+function limpiarFormAct() {
+  editando = null; $('#form-act').reset();
+  $('#act-titulo-form').textContent = 'Nueva actividad'; $('#act-guardar').textContent = 'Agregar actividad'; $('#act-cancelar').hidden = true;
+  const ult = actividades[actividades.length - 1];
+  if (ult) $('#act-fecha').value = partesCol(ult.inicio).fecha;
+}
+
+$('#act-lista').addEventListener('click', async (e) => {
+  const ed = e.target.closest('[data-editar]'), bo = e.target.closest('[data-borrar]');
+  if (ed) {
+    const a = actividades.find((x) => String(x.id) === ed.dataset.editar); editando = a.id;
+    $('#act-nombre').value = a.nombre; $('#act-lugar').value = a.lugar || '';
+    const i = partesCol(a.inicio), f = partesCol(a.fin);
+    $('#act-fecha').value = i.fecha; $('#act-ini').value = i.hora; $('#act-fin').value = f.hora;
+    $('#act-titulo-form').textContent = `Editar: ${a.nombre}`; $('#act-guardar').textContent = 'Guardar cambios'; $('#act-cancelar').hidden = false;
+    $('#act-nombre').focus();
+  }
+  if (bo) {
+    if (bo.dataset.confirmar !== 'si') { bo.dataset.confirmar = 'si'; bo.textContent = '¿Seguro? Toca otra vez'; return; }
+    try { await api.borrarActividad(Number(bo.dataset.borrar)); $('#act-msg').innerHTML = mensaje('ok', 'Actividad borrada'); await pintarActividades(); limpiarFormAct(); }
+    catch (err) { $('#act-msg').innerHTML = mensaje('error', 'No se pudo borrar', esc(err.message)); }
+  }
+});
+$('#act-cancelar')?.addEventListener('click', limpiarFormAct);
+$('#form-act')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nombre = $('#act-nombre').value.trim(), fecha = $('#act-fecha').value, hi = $('#act-ini').value, hf = $('#act-fin').value;
+  if (nombre.length < 3 || !fecha || !hi || !hf) { $('#act-msg').innerHTML = mensaje('aviso', 'Faltan datos', 'Escribe el nombre, la fecha y las horas de inicio y fin.'); return; }
+  const inicio = new Date(`${fecha}T${hi}:00-05:00`);
+  let fin = new Date(`${fecha}T${hf}:00-05:00`);
+  if (fin <= inicio) fin = new Date(fin.getTime() + 864e5); // termina después de medianoche
+  const btn = $('#act-guardar'); btn.disabled = true;
+  try {
+    await api.guardarActividad({ id: editando, nombre, inicio: inicio.toISOString(), fin: fin.toISOString(), lugar: $('#act-lugar').value.trim() });
+    $('#act-msg').innerHTML = mensaje('ok', editando ? 'Actividad actualizada' : 'Actividad agregada');
+    await pintarActividades(); limpiarFormAct();
+  } catch (err) {
+    $('#act-msg').innerHTML = mensaje('error', 'No se pudo guardar', esc(err.message));
+  } finally { btn.disabled = false; }
+});
+pintarActividades().then(() => { if (esAdmin) limpiarFormAct(); });
+setInterval(pintarActividades, 60000);

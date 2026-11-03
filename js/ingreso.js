@@ -243,6 +243,7 @@ function mostrarVeredicto(r) {
   if (r.dependencia) det.push(r.dependencia);
   let detalle = esc(det.join(', '));
   if (r.estado === 'repetido') detalle += `<br>Entró a las ${horaCorta(r.hora_previa)}${r.punto_previo ? ` por ${esc(r.punto_previo)}` : ''}. Verifica su documento.`;
+  if (r.actividad && (r.estado === 'ok' || r.estado === 'repetido')) detalle += `<br><strong>${esc(r.actividad)}</strong>`;
   if (r.estado === 'no_encontrado') detalle = 'Búscalo por documento. Si no aparece, pídele que se registre como invitado en el celular y vuelve a escanear.';
   const autorregistroUceva = r.origen === 'registro' && r.tipo_asistente && r.tipo_asistente !== 'externo';
   if (autorregistroUceva && r.estado === 'ok') detalle += '<br><span class="veredicto__marca">Se registró en línea como miembro de la UCEVA: pide su carné.</span>';
