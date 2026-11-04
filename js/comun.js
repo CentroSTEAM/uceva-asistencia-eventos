@@ -1,5 +1,5 @@
-import { CONFIG, MODO_DEMO } from './config.js?v=20261103h';
-import { TIPOS } from './api.js?v=20261103h';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261104a';
+import { TIPOS } from './api.js?v=20261104a';
 
 export const ICONOS = {
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>',
@@ -35,9 +35,7 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
     <div class="barra__dentro">
       <a class="marca" href="index.html" aria-label="${esc(CONFIG.evento.nombre)}, inicio">
         <span class="marca__logos">
-          <img class="marca__55" src="img/uceva-55.png" alt="" width="175" height="159">
-          <span class="marca__sep" aria-hidden="true"></span>
-          <img class="marca__logo" src="img/logo-uceva.png" alt="UCEVA, Unidad Central del Valle del Cauca" width="511" height="163">
+          <img class="marca__logo" src="img/logo-uceva-55.png" alt="UCEVA 55 años, Institución de Educación Superior, Unidad Central del Valle del Cauca" width="1169" height="241">
         </span>
       </a>
       <nav aria-label="Principal">
@@ -69,7 +67,7 @@ export function montarBarra(actual, enlaces = ENLACES_PUBLICOS) {
   creditos.innerHTML = `
     <span class="creditos__texto">Plataforma desarrollada por</span>
     <span class="creditos__logos">
-      <img class="creditos__uceva" src="img/logo-uceva.png" alt="UCEVA, Unidad Central del Valle del Cauca" width="511" height="163">
+      <img class="creditos__uceva" src="img/logo-uceva-55.png" alt="UCEVA 55 años, Unidad Central del Valle del Cauca" width="1169" height="241">
       <span class="creditos__sep" aria-hidden="true"></span>
       <span class="creditos__steam creditos__vips"><img src="img/vips-logo.png" alt="" width="480" height="351"><span><strong>VIPS</strong><small>Vicerrectoría de Investigación<br>y Proyección Social</small></span></span>
       <span class="creditos__sep" aria-hidden="true"></span>

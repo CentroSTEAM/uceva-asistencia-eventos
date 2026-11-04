@@ -1,11 +1,11 @@
 // Panel de administración: asistencia en vivo, carga de bases institucionales
 // y exportación del listado de asistentes.
 
-import { api, TIPOS } from './api.js?v=20261103h';
-import { CONFIG } from './config.js?v=20261103h';
-import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js?v=20261103h';
-import { ENLACES_PERSONAL } from './comun.js?v=20261103h';
-import { exigirSesion, salir } from './sesion.js?v=20261103h';
+import { api, TIPOS } from './api.js?v=20261104a';
+import { CONFIG } from './config.js?v=20261104a';
+import { montarBarra, mensaje, esc, ICONOS, $, svgDeTexto, qrDeTexto } from './comun.js?v=20261104a';
+import { ENLACES_PERSONAL } from './comun.js?v=20261104a';
+import { exigirSesion, salir } from './sesion.js?v=20261104a';
 
 const raiz = $('#contenido');
 montarBarra('panel.html', ENLACES_PERSONAL);

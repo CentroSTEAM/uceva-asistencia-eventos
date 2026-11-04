@@ -1,7 +1,7 @@
-import { api, normalizarDoc } from './api.js?v=20261103h';
-import { CONFIG } from './config.js?v=20261103h';
-import { FACULTADES, DEPENDENCIAS, OTRA_DEPENDENCIA } from './unidades.js?v=20261103h';
-import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js?v=20261103h';
+import { api, normalizarDoc } from './api.js?v=20261104a';
+import { CONFIG } from './config.js?v=20261104a';
+import { FACULTADES, DEPENDENCIAS, OTRA_DEPENDENCIA } from './unidades.js?v=20261104a';
+import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js?v=20261104a';
 
 montarBarra('registro.html');
 
