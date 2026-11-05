@@ -1,5 +1,5 @@
-import { CONFIG, MODO_DEMO } from './config.js?v=20261105a';
-import { TIPOS } from './api.js?v=20261105a';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261105b';
+import { TIPOS } from './api.js?v=20261105b';
 
 export const ICONOS = {
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>',

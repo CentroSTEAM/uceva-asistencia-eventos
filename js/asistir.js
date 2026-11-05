@@ -1,10 +1,10 @@
 // Autoregistro de asistencia: la persona llega al evento, escanea el QR del
 // cartel con su celular y registra su asistencia con su documento.
 
-import { api, TIPOS, normalizarDoc } from './api.js?v=20261105a';
-import { CONFIG } from './config.js?v=20261105a';
-import { ofrecerActualizacion } from './actualizar.js?v=20261105a';
-import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261105a';
+import { api, TIPOS, normalizarDoc } from './api.js?v=20261105b';
+import { CONFIG } from './config.js?v=20261105b';
+import { ofrecerActualizacion } from './actualizar.js?v=20261105b';
+import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261105b';
 
 montarBarra('asistir.html');
 

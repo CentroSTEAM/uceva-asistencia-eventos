@@ -27,7 +27,8 @@ export const CONFIG = {
   },
 
   // Puntos de ingreso que aparecen en la pantalla del personal
-  puntos: ['Puerta principal', 'Puerta 2', 'Puerta 3', 'Acceso preferencial'],
+  // Los registros hechos con el escáner quedan marcados con este punto
+  puntos: ['Equipo de logística'],
 };
 
 export const MODO_DEMO = !CONFIG.SUPABASE_URL;

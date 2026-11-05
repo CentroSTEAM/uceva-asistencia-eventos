@@ -122,3 +122,7 @@
 
 .puesto__actividad { margin-top: .6rem; }
 .puesto__actividad select { font-weight: 700; border-color: var(--verde); }
+
+.puesto__titulo { margin: 0; display: grid; }
+.puesto__titulo strong { font-family: var(--display); font-size: var(--t-2); }
+.puesto__titulo span { font-size: var(--t-0); color: var(--tinta-2); }

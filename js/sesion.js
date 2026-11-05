@@ -1,7 +1,7 @@
-// Inicio de sesión del personal (porteros y administradores).
-import { api } from './api.js?v=20261105a';
-import { MODO_DEMO } from './config.js?v=20261105a';
-import { mensaje, esc, $ } from './comun.js?v=20261105a';
+// Inicio de sesión del personal (logística, consulta y administradores).
+import { api } from './api.js?v=20261105b';
+import { MODO_DEMO } from './config.js?v=20261105b';
+import { mensaje, esc, $ } from './comun.js?v=20261105b';
 
 export async function exigirSesion(contenedor, { roles = null } = {}) {
   const soloAdmin = !!roles; // páginas restringidas a ciertos roles (el panel)
@@ -18,11 +18,11 @@ export async function exigirSesion(contenedor, { roles = null } = {}) {
         <h1 id="titulo-acceso">${soloAdmin ? 'Panel del evento' : 'Acceso del personal'}</h1>
         <p class="entrada">${soloAdmin ? 'Para administradores y personas con rol de consulta.' : 'Para el equipo de logística y la coordinación del evento.'} Entra con el correo y la contraseña que te asignaron.</p>
         ${soloAdmin ? '' : `<ul class="roles">
-          <li><strong>Portero</strong><span>Escanea los pases y busca personas por cédula en la entrada.</span></li>
+          <li><strong>Logística</strong><span>Escanea los pases y registra la asistencia buscando a las personas por cédula.</span></li>
           <li><strong>Consulta</strong><span>Ve las estadísticas del panel y descarga los listados.</span></li>
           <li><strong>Administrador</strong><span>Todo lo anterior, y además abre o cierra el registro de asistencia, carga bases y gestiona el personal.</span></li>
         </ul>`}
-        ${perfil && soloAdmin ? mensaje('aviso', 'Tu usuario no tiene acceso al panel', 'Tu rol es portero: puedes usar el escáner de pases. Para ver el panel pide acceso a la coordinación del evento.') : ''}
+        ${perfil && soloAdmin ? mensaje('aviso', 'Tu usuario no tiene acceso al panel', 'Tu rol es logística: puedes usar el escáner de pases. Para ver el panel pide acceso a la coordinación del evento.') : ''}
         <form id="form-acceso" novalidate>
           <div id="acceso-error" aria-live="assertive"></div>
           <div class="campo">
@@ -44,7 +44,7 @@ export async function exigirSesion(contenedor, { roles = null } = {}) {
       btn.disabled = true; btn.textContent = 'Entrando…';
       try {
         const p = await api.iniciarSesion($('#correo', contenedor).value.trim(), $('#clave', contenedor).value);
-        if (!permitido(p)) throw new Error('Tu usuario no tiene acceso al panel. Tu rol es portero: usa el escáner de pases.');
+        if (!permitido(p)) throw new Error('Tu usuario no tiene acceso al panel. Tu rol es logística: usa el escáner de pases.');
         try { localStorage.setItem('uceva-perfil', JSON.stringify(p)); } catch {}
         resolver(p);
       } catch (err) {

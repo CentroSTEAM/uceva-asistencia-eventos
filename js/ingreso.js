@@ -1,11 +1,11 @@
 // Pantalla del personal en la puerta: escáner QR, búsqueda por documento
 // y respaldo sin conexión (padrón local + cola de sincronización).
 
-import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261105a';
-import { CONFIG, MODO_DEMO } from './config.js?v=20261105a';
-import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261105a';
-import { ENLACES_PERSONAL } from './comun.js?v=20261105a';
-import { exigirSesion, salir } from './sesion.js?v=20261105a';
+import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261105b';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261105b';
+import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261105b';
+import { ENLACES_PERSONAL } from './comun.js?v=20261105b';
+import { exigirSesion, salir } from './sesion.js?v=20261105b';
 
 const raiz = $('#contenido');
 const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo', actividad: 'uceva-actividad' };
@@ -30,7 +30,7 @@ indexar();
 let cola = leerLS(LS.cola, []);
 let conteo = leerLS(LS.conteo, { fecha: new Date().toDateString(), n: 0 });
 if (conteo.fecha !== new Date().toDateString()) conteo = { fecha: new Date().toDateString(), n: 0 };
-let punto = localStorage.getItem(LS.punto) || CONFIG.puntos[0];
+const punto = CONFIG.puntos[0];
 let actividad = localStorage.getItem(LS.actividad) || null;
 
 // ---------------------------------------------------------------------
@@ -40,10 +40,7 @@ let actividad = localStorage.getItem(LS.actividad) || null;
 raiz.innerHTML = `
   <div class="puesto">
     <div class="puesto__fila">
-      <div class="campo campo--compacto">
-        <label for="punto">Punto de ingreso</label>
-        <select id="punto">${CONFIG.puntos.map((p) => `<option${p === punto ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select>
-      </div>
+      <p class="puesto__titulo"><strong>Escáner de asistencia</strong><span>Equipo de logística</span></p>
       <p class="puesto__conteo"><strong id="conteo">${conteo.n}</strong><span>ingresos aquí</span></p>
     </div>
     <div class="campo campo--compacto puesto__actividad" id="caja-actividad" hidden>
@@ -102,7 +99,7 @@ const el = {
   veredicto: $('#veredicto'), resultados: $('#resultados'), q: $('#q'),
 };
 
-$('#punto').addEventListener('change', (e) => { punto = e.target.value; localStorage.setItem(LS.punto, punto); });
+
 $('#actividad').addEventListener('change', (e) => { actividad = e.target.value; localStorage.setItem(LS.actividad, actividad); });
 
 // Actividades vigentes para la lista desplegable (se refresca cada minuto)
@@ -264,7 +261,7 @@ function mostrarVeredicto(r) {
   if (r.tipo_asistente) det.push(TIPOS[r.tipo_asistente] || r.tipo_asistente);
   if (r.dependencia) det.push(r.dependencia);
   let detalle = esc(det.join(', '));
-  if (r.estado === 'repetido') detalle += `<br>Entró a las ${horaCorta(r.hora_previa)}${r.punto_previo ? ` por ${esc(r.punto_previo)}` : ''}. Verifica su documento.`;
+  if (r.estado === 'repetido') detalle += `<br>Entró a las ${horaCorta(r.hora_previa)}${r.punto_previo ? ` (${esc(r.punto_previo)})` : ''}. Verifica su documento.`;
   if (r.actividad && (r.estado === 'ok' || r.estado === 'repetido')) detalle += `<br><strong>${esc(r.actividad)}</strong>`;
   if (r.estado === 'no_encontrado') detalle = 'Búscalo por documento. Si no aparece, pídele que se registre como invitado en el celular y vuelve a escanear.';
   const autorregistroUceva = r.origen === 'registro' && r.tipo_asistente && r.tipo_asistente !== 'externo';
