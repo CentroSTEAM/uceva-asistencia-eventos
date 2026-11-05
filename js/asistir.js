@@ -1,10 +1,10 @@
 // Autoregistro de asistencia: la persona llega al evento, escanea el QR del
 // cartel con su celular y registra su asistencia con su documento.
 
-import { api, TIPOS, normalizarDoc } from './api.js?v=20261104a';
-import { CONFIG } from './config.js?v=20261104a';
-import { ofrecerActualizacion } from './actualizar.js?v=20261104a';
-import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261104a';
+import { api, TIPOS, normalizarDoc } from './api.js?v=20261105a';
+import { CONFIG } from './config.js?v=20261105a';
+import { ofrecerActualizacion } from './actualizar.js?v=20261105a';
+import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261105a';
 
 montarBarra('asistir.html');
 
@@ -30,7 +30,8 @@ async function cargarActividades() {
   try {
     const lista = await api.actividadesVigentes();
     const caja = $('#caja-actividad'); const sel = $('#actividad');
-    if (!caja || !lista.length) return;
+    // Con una sola actividad no hace falta preguntar: se asigna sola
+    if (!caja || lista.length < 2) { actividadElegida = null; return; }
     const hora = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
     const previa = lista.find((a) => String(a.id) === String(actividadElegida));
     const defecto = previa || lista.find((a) => a.en_curso) || lista[0];

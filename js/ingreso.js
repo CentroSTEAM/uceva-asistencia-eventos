@@ -1,11 +1,11 @@
 // Pantalla del personal en la puerta: escáner QR, búsqueda por documento
 // y respaldo sin conexión (padrón local + cola de sincronización).
 
-import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261104a';
-import { CONFIG, MODO_DEMO } from './config.js?v=20261104a';
-import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261104a';
-import { ENLACES_PERSONAL } from './comun.js?v=20261104a';
-import { exigirSesion, salir } from './sesion.js?v=20261104a';
+import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261105a';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261105a';
+import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261105a';
+import { ENLACES_PERSONAL } from './comun.js?v=20261105a';
+import { exigirSesion, salir } from './sesion.js?v=20261105a';
 
 const raiz = $('#contenido');
 const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo', actividad: 'uceva-actividad' };
@@ -110,7 +110,7 @@ async function cargarActividades() {
   try {
     const lista = await api.actividadesVigentes();
     const sel = $('#actividad');
-    if (!lista.length) { $('#caja-actividad').hidden = true; actividad = null; return; }
+    if (lista.length < 2) { $('#caja-actividad').hidden = true; actividad = null; localStorage.removeItem(LS.actividad); return; }
     const hora = (iso) => new Date(iso).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
     const elegida = lista.find((a) => String(a.id) === String(actividad)) || lista.find((a) => a.en_curso) || lista[0];
     actividad = String(elegida.id); localStorage.setItem(LS.actividad, actividad);

@@ -1,7 +1,7 @@
-import { api, normalizarDoc } from './api.js?v=20261104a';
-import { CONFIG } from './config.js?v=20261104a';
-import { ofrecerActualizacion } from './actualizar.js?v=20261104a';
-import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ultimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js?v=20261104a';
+import { api, normalizarDoc } from './api.js?v=20261105a';
+import { CONFIG } from './config.js?v=20261105a';
+import { ofrecerActualizacion } from './actualizar.js?v=20261105a';
+import { montarBarra, mensaje, htmlPase, htmlPaseVacio, descargarPase, guardarUltimoPase, ultimoPase, activarTilt, vigilarPase, ICONOS, esc, $ } from './comun.js?v=20261105a';
 
 montarBarra('index.html');
 
