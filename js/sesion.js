@@ -1,7 +1,7 @@
 // Inicio de sesión del personal (logística, consulta y administradores).
-import { api } from './api.js?v=20261105b';
-import { MODO_DEMO } from './config.js?v=20261105b';
-import { mensaje, esc, $ } from './comun.js?v=20261105b';
+import { api } from './api.js?v=20261105c';
+import { MODO_DEMO } from './config.js?v=20261105c';
+import { mensaje, esc, $ } from './comun.js?v=20261105c';
 
 export async function exigirSesion(contenedor, { roles = null } = {}) {
   const soloAdmin = !!roles; // páginas restringidas a ciertos roles (el panel)

@@ -1,11 +1,11 @@
 // Pantalla del personal en la puerta: escáner QR, búsqueda por documento
 // y respaldo sin conexión (padrón local + cola de sincronización).
 
-import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261105b';
-import { CONFIG, MODO_DEMO } from './config.js?v=20261105b';
-import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261105b';
-import { ENLACES_PERSONAL } from './comun.js?v=20261105b';
-import { exigirSesion, salir } from './sesion.js?v=20261105b';
+import { api, TIPOS, limpiarToken, normalizarDoc } from './api.js?v=20261105c';
+import { CONFIG, MODO_DEMO } from './config.js?v=20261105c';
+import { montarBarra, mensaje, esc, ICONOS, $ } from './comun.js?v=20261105c';
+import { ENLACES_PERSONAL } from './comun.js?v=20261105c';
+import { exigirSesion, salir } from './sesion.js?v=20261105c';
 
 const raiz = $('#contenido');
 const LS = { padron: 'uceva-padron', cola: 'uceva-cola', punto: 'uceva-punto', conteo: 'uceva-conteo', actividad: 'uceva-actividad' };
@@ -250,6 +250,7 @@ function mostrarVeredicto(r) {
     ok: ['ok', 'Puede entrar', ICONOS.ok],
     repetido: ['aviso', 'Ya había ingresado', ICONOS.aviso],
     no_encontrado: ['error', 'No está en la lista', ICONOS.error],
+    fuera_de_horario: ['aviso', 'Fuera del horario', ICONOS.aviso],
   };
   const [clase, titulo, icono] = tipos[r.estado] || tipos.no_encontrado;
   const v = el.veredicto;
@@ -263,6 +264,7 @@ function mostrarVeredicto(r) {
   let detalle = esc(det.join(', '));
   if (r.estado === 'repetido') detalle += `<br>Entró a las ${horaCorta(r.hora_previa)}${r.punto_previo ? ` (${esc(r.punto_previo)})` : ''}. Verifica su documento.`;
   if (r.actividad && (r.estado === 'ok' || r.estado === 'repetido')) detalle += `<br><strong>${esc(r.actividad)}</strong>`;
+  if (r.estado === 'fuera_de_horario') detalle = r.abre ? `No se registró. El registro abre a las ${horaCorta(r.abre)}.` : 'No se registró: el horario del evento ya terminó.';
   if (r.estado === 'no_encontrado') detalle = 'Búscalo por documento. Si no aparece, pídele que se registre como invitado en el celular y vuelve a escanear.';
   const autorregistroUceva = r.origen === 'registro' && r.tipo_asistente && r.tipo_asistente !== 'externo';
   if (autorregistroUceva && r.estado === 'ok') detalle += '<br><span class="veredicto__marca">Se registró en línea como miembro de la UCEVA: pide su carné.</span>';

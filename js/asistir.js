@@ -1,10 +1,10 @@
 // Autoregistro de asistencia: la persona llega al evento, escanea el QR del
 // cartel con su celular y registra su asistencia con su documento.
 
-import { api, TIPOS, normalizarDoc } from './api.js?v=20261105b';
-import { CONFIG } from './config.js?v=20261105b';
-import { ofrecerActualizacion } from './actualizar.js?v=20261105b';
-import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261105b';
+import { api, TIPOS, normalizarDoc } from './api.js?v=20261105c';
+import { CONFIG } from './config.js?v=20261105c';
+import { ofrecerActualizacion } from './actualizar.js?v=20261105c';
+import { montarBarra, mensaje, ultimoPase, guardarUltimoPase, ICONOS, esc, $ } from './comun.js?v=20261105c';
 
 montarBarra('asistir.html');
 
@@ -120,6 +120,9 @@ function mostrarResultado(r, doc) {
     return;
   }
   if (r.estado === 'actividad_invalida') return vistaAviso('aviso', 'Esa actividad ya terminó', 'Vuelve a la página de asistencia y elige una de las actividades que aparecen en la lista.');
+  if (r.estado === 'fuera_de_horario') return vistaAviso('cerrado', 'Todavía no es hora de registrar la asistencia', r.abre
+    ? `El registro se abre a las <strong>${new Date(r.abre).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' })}</strong>. Vuelve a esta página a esa hora. Mientras tanto puedes <a href="index.html">consultar tu pase</a>.`
+    : 'El horario de registro ya terminó. Gracias por acompañarnos.');
   if (r.estado === 'cerrado') return vistaAviso('cerrado', 'El registro de asistencia aún no está abierto', 'Se abre cuando empiece el evento. Vuelve a esta página en un momento. Mientras tanto puedes <a href="index.html">consultar tu pase</a>.');
   vistaAviso('error', 'Este código no es válido', 'Escanea el código QR del cartel que está en la entrada del evento.');
 }
@@ -129,6 +132,7 @@ async function iniciar() {
     const e = await api.estadoAsistencia(codigo);
     if (!e.codigo_valido) return mostrarResultado({ estado: 'codigo_invalido' });
     if (!e.abierta) return mostrarResultado({ estado: 'cerrado' });
+    if (e.en_horario === false) return mostrarResultado({ estado: 'fuera_de_horario', abre: e.abre });
     vistaFormulario(params.get('doc') || '');
   } catch (err) {
     vistaAviso('error', 'No pudimos conectarnos', 'Revisa tu conexión a internet y vuelve a escanear el código.');
